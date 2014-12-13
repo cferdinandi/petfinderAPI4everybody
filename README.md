@@ -303,28 +303,28 @@ If you have a lot of pets, you may want to give users the option of filter by at
 
 2. Add any of the attribute checklists you want to use to your template files, and add the `{{classes}}` variable on a containing `<div>` for the pet.
 
-		```html
-		<div data-petfinder-template="aside">
-			<strong>Breeds</strong>
-			{{checklist.breeds}}
-			<strong>Sizes</strong>
-			{{checklist.sizes}}
-		</div>
-		<div class="{{classes}}">
-			<h2>{{name}}</h2>
-			<a href="{{url.pet}}">Full Profile</a>
-		</div>
-		```
+	```html
+	<div data-petfinder-template="aside">
+		<strong>Breeds</strong>
+		{{checklist.breeds}}
+		<strong>Sizes</strong>
+		{{checklist.sizes}}
+	</div>
+	<div class="{{classes}}">
+		<h2>{{name}}</h2>
+		<a href="{{url.pet}}">Full Profile</a>
+	</div>
+	```
 
 3. Initialize `petfinderSort.js` as a callback after content is generated.
 
-		```js
-		petfinderAPI4everybody.init({
-			key: '123456789',
-			shelterID: 'AA11',
-			callbackAfter: function () { petfinderSort.init(); }
-		});
-		```
+	```js
+	petfinderAPI4everybody.init({
+		key: '123456789',
+		shelterID: 'AA11',
+		callbackAfter: function () { petfinderSort.init(); }
+	});
+	```
 
 
 ### Use petfinderAPI4everybody.js events in your own scripts
