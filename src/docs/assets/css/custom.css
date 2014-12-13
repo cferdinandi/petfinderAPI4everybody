@@ -1,0 +1,41 @@
+@-webkit-viewport { width: device-width; zoom: 1.0; }
+@-moz-viewport { width: device-width; zoom: 1.0; }
+@-ms-viewport { width: device-width; zoom: 1.0; }
+@-o-viewport { width: device-width; zoom: 1.0; }
+@viewport { width: device-width; zoom: 1.0; }
+
+html { overflow-y: auto; }
+
+img, audio, video, canvas {
+	max-width: 100%;
+	height: auto;
+}
+
+/*  Sets body width */
+.container {
+	max-width: 40em;
+	width: 88%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#pf-api-data {
+	background-color: #f7f7f7;
+	margin-bottom: 1.5625em;
+	padding: 0.9375em;
+	border: 0.0725em solid #e5e5e5;
+	border-radius: 0.0725em;
+}
+
+label,
+input {
+	width: 100%;
+}
+
+label {
+	font-weight: bold;
+}
+
+input {
+	margin-bottom: 1.5635em;
+}

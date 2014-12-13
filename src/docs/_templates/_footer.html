@@ -1,0 +1,49 @@
+
+			</section>
+		</main>
+
+		<!-- Javascript -->
+		<script src="dist/js/classList.js"></script>
+		<script src="dist/js/petfinderAPI4everybody.js"></script>
+		<script>
+			;(function (window, document, undefined) {
+
+				'use strict';
+
+				// Feature test
+				var supports = !!document.querySelector && !!window.addEventListener && !!window.localStorage && !!Array.prototype.indexOf;
+				if ( !supports ) return;
+
+				// Load API Data Form
+				var apiData = document.querySelector( '#pf-api-data' );
+				var form =
+					'<form>' +
+						'<div>' +
+							'<label for="key">Developer Key (<a href="https://www.petfinder.com/developers/api-key">get your key</a>)</label>' +
+							'<input name="key" id="pf-api-key" type="text" value="">' +
+						'</div>' +
+						'<div>' +
+							'<label for="shelter-id">Shelter ID</label>' +
+							'<input name="shelter-id" id="pf-shelter-id" type="text" value="RI77">' +
+						'</div>' +
+					'</form>' +
+					'<button id="pf-fetch-api">Fetch API Data</button>';
+				apiData.innerHTML = form;
+
+				// Fetch API Data
+				var submit = document.querySelector( '#pf-fetch-api' );
+				submit.addEventListener( 'click', function () {
+					var key = document.querySelector( '#pf-api-key' ).value;
+					var shelter = document.querySelector( '#pf-shelter-id' ).value;
+					petfinderAPI.init({
+						key: key,
+						shelter: shelter
+					});
+				}, false);
+
+			})(window, document);
+		</script>
+
+
+	</body>
+</html>
