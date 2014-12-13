@@ -296,10 +296,13 @@ petfinderAPI4everybody.init({
 If you have a lot of pets, you may want to give users the option of filter by attributes like animal type, breed, age, and more. The included (but optional) `petfinderSort.js` script makes this really easy.
 
 1. Include the script on your site.
+
 	```html
 	<script src="dist/js/petfinderSort.js"></script>
 	```
+
 2. Add any of the attribute checklists you want to use to your template files, and add the `{{classes}}` variable on a containing `<div>` for the pet.
+
 		```html
 		<div data-petfinder-template="aside">
 			<strong>Breeds</strong>
@@ -312,7 +315,9 @@ If you have a lot of pets, you may want to give users the option of filter by at
 			<a href="{{url.pet}}">Full Profile</a>
 		</div>
 		```
+
 3. Initialize `petfinderSort.js` as a callback after content is generated.
+
 		```js
 		petfinderAPI4everybody.init({
 			key: '123456789',
@@ -320,6 +325,7 @@ If you have a lot of pets, you may want to give users the option of filter by at
 			callbackAfter: function () { petfinderSort.init(); }
 		});
 		```
+
 
 ### Use petfinderAPI4everybody.js events in your own scripts
 
