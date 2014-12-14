@@ -1,5 +1,5 @@
 /**
- * petfinderAPI4everybody v0.1.0
+ * petfinderAPI4everybody v0.2.0
  * A JavaScript plugin that makes it easy for anyone to use the Petfinder API, by Chris Ferdinandi.
  * http://github.com/cferdinandi/petfinderAPI4everybody
  * 
@@ -29,7 +29,7 @@
 	var app = {}; // Object for app nodes
 	var lists = {}; // Object for pet lists
 	var original = {}; // Object for original content and page title
-	var settings, eventTimeout, localAPI, localAPIid, baseUrl, count;
+	var settings, eventTimeout, localAPI, localAPIid, baseUrl, total;
 
 	// Default settings
 	var defaults = {
@@ -51,6 +51,7 @@
 		// Miscellaneous
 		titlePrefix: '{{name}} | ',
 		loading: 'Fetching the latest pet info...',
+		noPet: 'Sorry, but this pet is no longer available. <a data-petfinder-async href="{{url.all}}">View available pets.</a>',
 
 
 		// Lists & Checkboxes
@@ -714,7 +715,7 @@
 				.replace( /\{\{url.petfinder\}\}/g, 'https://www.petfinder.com/petdetail/' + pet.id.$t )
 				.replace( /\{\{classes\}\}/, getPetClasses( pet ) )
 				.replace( /\{\{number\}\}/g, index )
-				.replace( /\{\{count\}\}/g, count );
+				.replace( /\{\{total\}\}/g, total );
 		}
 
 		return template
@@ -736,7 +737,7 @@
 			.replace( /\{\{checkbox.options.toggle\}\}/, createCheckboxes( 'options', true ) )
 			.replace( /\{\{checkbox.genders.toggle\}\}/, createCheckboxes( 'sex', true ) )
 			.replace( /\{\{checkbox.sizes.toggle\}\}/, createCheckboxes( 'size', true ) )
-			.replace( /\{\{count\}\}/g, count );
+			.replace( /\{\{total\}\}/g, total );
 	};
 
 	/**
@@ -817,8 +818,11 @@
 		// Get the pet's API data
 		var petData = getPetByID( petID );
 
-		// If no pet is a match or no template exists, end the method
-		if ( !petData.pet || !templates.onePet ) return;
+		// If no pet is a match or no template exists, show error message
+		if ( !petData.pet || !petData.number ) {
+			app.main.innerHTML = settings.noPet.replace( /\{\{url.all\}\}/, baseUrl );
+			return;
+		}
 
 		// Create markup for the pet
 		var markup = createTemplateMarkup( petData.pet, templates.onePet, petData.number );
@@ -900,7 +904,7 @@
 		}
 
 		// Get count of pets
-		count = localAPI.pets.length;
+		total = localAPI.pets.length;
 
 		// Determine if its a "one pet" or "all pets" page
 		var pet = /[\\?&]petID=([^&#]*)/i.exec(root.location.href);
@@ -982,7 +986,7 @@
 		localAPI = null;
 		localAPIid = null;
 		baseUrl = null;
-		count = null;
+		total = null;
 
 	};
 
@@ -1017,7 +1021,7 @@
 		app.aside = document.querySelector('[data-petfinder-app="aside"]');
 		original.content = app.main.innerHTML;
 		original.title = document.title;
-		baseUrl = [location.protocol, '//', location.host, location.pathname].join('');
+		baseUrl = [root.location.protocol, '//', root.location.host, root.location.pathname].join('');
 		getTemplates();
 
 		// Show loading icon and fetch Petfinder API data

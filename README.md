@@ -1,5 +1,5 @@
-# petfinderAPI4everybody.js [![Build Status](https://travis-ci.org/cferdinandi/petfinderAPI4everybody.svg)](https://travis-ci.org/cferdinandi/petfinderAPI4everybody)
-A JavaScript plugin that makes it easy for anyone to use the [Petfinder API](https://www.petfinder.com/developers/api-docs).
+# petfinderAPI4everybody.js beta [![Build Status](https://travis-ci.org/cferdinandi/petfinderAPI4everybody.svg)](https://travis-ci.org/cferdinandi/petfinderAPI4everybody)
+A JavaScript plugin that makes it easy for anyone to use the [Petfinder API](https://www.petfinder.com/developers/api-docs). Currently in Beta.
 
 [Download petfinderAPI4everybody.js](https://github.com/cferdinandi/petfinderAPI4everybody/archive/master.zip) / [View the demo](http://cferdinandi.github.io/petfinderAPI4everybody/)
 
@@ -128,8 +128,8 @@ Include the following variables in your template elements to dynamically add con
 * `{{url.pet}}` - URL to profile of individual pet (for use in "all pets" template)
 * `{{url.petfinder}}` - URL to pet's Petfinder profile
 * `{{classes}}` - A string of classes describing all pet attributes
-* `{{count}}` - Total number of pets available
-* `{{number}}` - Which number of the total this pet is (for use in "one pet" template - eg. 10 of 25)
+* `{{number}}` - This pets number out of the total number of available pets (for use in "one pet" template - eg. 10 of 25)
+* `{{total}}` - Total number of pets available
 
 **Aside Variables:**
 
@@ -151,7 +151,7 @@ Include the following variables in your template elements to dynamically add con
 * `{{checkbox.options.toggle}}` - Checkbox and label for each available option with "select all" toggle
 * `{{checkbox.genders.toggle}}` - Checkbox and label for each available gender with "select all" toggle
 * `{{checkbox.sizes.toggle}}` - Checkbox and label for each available size with "select all" toggle
-* `{{count}}` - Total number of pets available
+* `{{total}}` - Total number of pets available
 
 ***Note:*** *Lists return `<li>` elements only. You must place them inside an `<ol>` or `<ul>` element as desired. Example: `<ul>{{list.breeds}}</ul>`*
 
@@ -236,9 +236,9 @@ petfinderAPI4everybody.init({
 	oneClass: 'js-petfinder-api-one-pet', // Added when one pet is displayed
 
 	// Miscellaneous
-	titlePrefix: '{{name}}` - | ', // Prefix to add to document title when displaying one pet ({{name}}` - is replaced with pet name)
+	titlePrefix: '{{name}}` - | ', // Prefix to add to document title when displaying one pet ({{name}} is replaced with pet name)
 	loading: 'Fetching the latest pet info...', // Loading text and graphics
-
+	noPet: noPet: 'Sorry, but this pet is no longer available. <a data-petfinder-async href="{{url.all}}">View available pets.</a>', // Message when petID in query string does not match an available pet ({{url.all}} is replaced with a URL to full pet list)
 
 	// Lists & Checkboxes
 	classPrefix: 'pf-', // Prefix to add before all pet classes
@@ -372,5 +372,9 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.2.0 - December 13, 2014
+	* Added `root` prefix to `.location`.
+	* Changed `{{count}}` variable to `{{total}}`.
+	* Added error message when individual pet no longer available.
 * v0.1.0 - December 12, 2014
 	* Beta release.
