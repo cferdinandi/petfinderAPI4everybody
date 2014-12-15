@@ -48,12 +48,24 @@
     </p>
     <div>{{description}}</div>
 </div>
+
+<div data-petfinder-template="aside-all" hidden>
+    <strong>Age:</strong>
+    {{checkbox.ages.toggle}}
+
+    <strong>Size:</strong>
+    {{checkbox.sizes}}
+
+    <strong>Gender:</strong>
+    {{checkbox.genders}}
+</div>
 			</section>
 		</main>
 
 		<!-- Javascript -->
 		<script src="dist/js/classList.js"></script>
 		<script src="dist/js/petfinderAPI4everybody.js"></script>
+		<script src="dist/js/petfinderSort-new.js"></script>
 		<script>
 			;(function (window, document, undefined) {
 
@@ -86,7 +98,8 @@
 					var shelter = document.querySelector( '#pf-shelter-id' ).value;
 					petfinderAPI.init({
 						key: key,
-						shelter: shelter
+						shelter: shelter,
+						callbackAfter: function () { petfinderSort.init(); }
 					});
 				}, false);
 

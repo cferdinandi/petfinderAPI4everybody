@@ -647,7 +647,7 @@
 		// Variables
 		var markup = '';
 		var toggleAll = '';
-		var sortClass = type === 'breeds' ? 'pf-breeds' : 'pf-sort';
+		var sort = type === 'breeds' ? 'breeds' : 'attributes';
 		var subtype = null;
 		if ( type === 'breeds' ) { subtype = 'breed'; }
 		if ( type === 'options' ) { subtype = 'option'; }
@@ -658,7 +658,7 @@
 			var target = condenseString( item, true );
 			markup +=
 				'<label>' +
-					'<input type="checkbox" class="' + sortClass + ' pf-sort-' + type + '" data-target=".' + target + '" checked>' +
+					'<input type="checkbox" data-petfinder-sort="' + sort + '" data-petfinder-sort-type="' + type + '" data-petfinder-sort-target=".' + target + '" checked>' +
 					item +
 				'</label>';
 		});
@@ -667,7 +667,7 @@
 		if ( toggle ) {
 			toggleAll =
 				'<label>' +
-					'<input type="checkbox" class="pf-toggle-all" data-target=".pf-sort-' + type + '" checked>' +
+					'<input type="checkbox" data-petfinder-sort="toggle" data-petfinder-sort-target="[data-petfinder-sort-type=' + type + ']" checked>' +
 					settings.toggleAll +
 				'</label>';
 		}
@@ -799,7 +799,7 @@
 		forEach(localAPI.pets, function (pet, index) {
 			if ( pet.id.$t === petID ) {
 				petData.pet = pet;
-				petData.number = index;
+				petData.number = index.toString();
 			}
 		});
 		return petData;
@@ -907,6 +907,7 @@
 			if ( push ) {
 				updateURL( baseUrl + '?petID=' + pet[1] );
 			}
+			settings.callbackAfter(); // Run callback after content is rendered
 			return;
 		}
 
@@ -940,7 +941,6 @@
 			localAPI.reverse();
 		}
 
-		console.log(localAPI);
 
 		// Get count of pets
 		total = localAPI.pets.length;

@@ -5,6 +5,7 @@
 		<!-- Javascript -->
 		<script src="dist/js/classList.js"></script>
 		<script src="dist/js/petfinderAPI4everybody.js"></script>
+		<script src="dist/js/petfinderSort-new.js"></script>
 		<script>
 			;(function (window, document, undefined) {
 
@@ -37,7 +38,8 @@
 					var shelter = document.querySelector( '#pf-shelter-id' ).value;
 					petfinderAPI.init({
 						key: key,
-						shelter: shelter
+						shelter: shelter,
+						callbackAfter: function () { petfinderSort.init(); }
 					});
 				}, false);
 

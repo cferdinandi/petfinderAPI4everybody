@@ -392,6 +392,8 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.3.1 - December 14, 2014
+	* Refactored petfinderSort.js for better performance.
 * v0.3.0 - December 14, 2014
 	* Added support for "contact info" variables.
 * v0.2.0 - December 13, 2014

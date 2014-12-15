@@ -29,13 +29,15 @@ img, audio, video, canvas {
 
 label,
 input {
+	display: inline-block;
 	width: 100%;
-}
-
-label {
-	font-weight: bold;
 }
 
 input {
 	margin-bottom: 1.5635em;
+}
+
+input[type="checkbox"] {
+	margin-bottom: 0;
+	width: auto;
 }
