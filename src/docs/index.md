@@ -24,3 +24,14 @@
 	</p>
 	<div>{{description}}</div>
 </div>
+
+<div data-petfinder-template="aside-all" hidden>
+	<strong>Age:</strong>
+	{{checkbox.ages.toggle}}
+
+	<strong>Size:</strong>
+	{{checkbox.sizes}}
+
+	<strong>Gender:</strong>
+	{{checkbox.genders}}
+</div>
