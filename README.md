@@ -124,6 +124,15 @@ Include the following variables in your template elements to dynamically add con
 * `{{options.housebroken}}` - Text if the pet is housebroken
 * `{{options.altered}}` - Text if the pet is spayed or neutered
 * `{{options.multi}}` - Text if pet can't be in a home with some combination dogs, cats, or kids
+* `{{contact.name}}` - Name of contact for pet
+* `{{contact.email}}` - Email of contact for pet
+* `{{contact.phone}}` - Phone number of contact for pet
+* `{{contact.address1}}` - Address (line one) of contact for pet
+* `{{contact.address2}}` - Address (line two) of contact for pet
+* `{{contact.city}}` - City of contact for pet
+* `{{contact.state}}` - State of contact for pet
+* `{{contact.zip}}` - Zip code of contact for pet
+* `{{contact.fax}}` - Fax number of contact for pet
 * `{{url.all}}` - URL to list of all pets (for use in "one pet" template).
 * `{{url.pet}}` - URL to profile of individual pet (for use in "all pets" template)
 * `{{url.petfinder}}` - URL to pet's Petfinder profile
@@ -285,6 +294,17 @@ petfinderAPI4everybody.init({
 	optionsNoDogsKids: 'No Dogs/Kids', // Text for pets that can't be in a house with dogs or kids
 	optionsNoCatsKids: 'No Cats/Kids', // Text for pets that can't be in a house with cats or kids
 
+	// Contact Info Missing Text
+	contactName: '', // Text when pet's contact name is missing
+	contactEmail: '', // Text when pet's contact email is missing
+	contactPhone: '', // Text when pet's contact phone number is missing
+	contactAddress1: '', // Text when pet's contact first line address is missing
+	contactAddress2: '', // Text when pet's contact second line address is missing
+	contactCity: '', // Text when pet's contact city is missing
+	contactState: '', // Text when pet's contact state is missing
+	contactZip: '', // Text when pet's contact zip code is missing
+	contactFax: '', // Text when pet's contact fax number is missing
+
 	// Callbacks
 	callbackBefore: function () {}, // Callback to run each time pet content is loaded
 	callbackAfter: function () {} // Callback to run after each time pet content is generated
@@ -372,6 +392,8 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.3.0 - December 14, 2014
+	* Added support for "contact info" variables.
 * v0.2.0 - December 13, 2014
 	* Added `root` prefix to `.location`.
 	* Changed `{{count}}` variable to `{{total}}`.

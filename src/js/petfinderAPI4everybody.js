@@ -90,6 +90,17 @@
 		optionsNoDogsKids: 'No Dogs/Kids',
 		optionsNoCatsKids: 'No Cats/Kids',
 
+		// Contact Info Missing Text
+		contactName: '',
+		contactEmail: '',
+		contactPhone: '',
+		contactAddress1: '',
+		contactAddress2: '',
+		contactCity: '',
+		contactState: '',
+		contactZip: '',
+		contactFax: '',
+
 		// Callbacks
 		callbackBefore: function () {},
 		callbackAfter: function () {}
@@ -365,7 +376,7 @@
 	 * @param  {Number} num  Which photo to get
 	 * @return {String}      URL of the photo
 	 */
-	var getPhoto = function ( pet, size, num ) {
+	var getPetPhoto = function ( pet, size, num ) {
 
 		// If pet has no photos, end method
 		if ( pet.media.photos.photo.count === 0 ) return '';
@@ -388,6 +399,32 @@
 		});
 
 		return image;
+
+	};
+
+	/**
+	 * Get contact info for a pet
+	 * @param  {Object} pet  The pet
+	 * @param  {String} type Type of contact info to get
+	 * @return {String}      The contact info
+	 */
+	var getPetContact = function ( pet, type ) {
+
+		// Default info value
+		var info = '';
+
+		// Set info based on type
+		if ( type === 'name' ) { info = pet.contact.name && pet.contact.name.$t ? pet.contact.name.$t : settings.contactName; }
+		if ( type === 'email' ) { info = pet.contact.email && pet.contact.email.$t ? pet.contact.email.$t : settings.contactEmail; }
+		if ( type === 'phone' ) { info = pet.contact.phone && pet.contact.phone.$t ? pet.contact.phone.$t : settings.contactPhone; }
+		if ( type === 'address1' ) { info = pet.contact.address1 && pet.contact.address1.$t ? pet.contact.address1.$t : settings.contactAddress1; }
+		if ( type === 'address2' ) { info = pet.contact.address2 && pet.contact.address2.$t ? pet.contact.address2.$t : settings.contactAddress2; }
+		if ( type === 'city' ) { info = pet.contact.city && pet.contact.city.$t ? pet.contact.city.$t : settings.contactCity; }
+		if ( type === 'state' ) { info = pet.contact.state && pet.contact.state.$t ? pet.contact.state.$t : settings.contactState; }
+		if ( type === 'zip' ) { info = pet.contact.zip && pet.contact.zip.$t ? pet.contact.zip.$t : settings.contactZip; }
+		if ( type === 'fax' ) { info = pet.contact.fax && pet.contact.fax.$t ? pet.contact.fax.$t : settings.contactFax; }
+
+		return info;
 
 	};
 
@@ -669,27 +706,29 @@
 	var createTemplateMarkup = function ( pet, template, index ) {
 		if ( pet ) {
 			return template
-				.replace( /\{\{age\}\}/, getPetAttribute( pet, 'age', settings.ageUnknown ) )
+				.replace( /\{\{name\}\}/g, pet.name.$t )
+				.replace( /\{\{id\}\}/g, pet.id.$t )
 				.replace( /\{\{animal\}\}/, pet.animal.$t )
+				.replace( /\{\{age\}\}/, getPetAttribute( pet, 'age', settings.ageUnknown ) )
+				.replace( /\{\{gender\}\}/, getPetAttribute( pet, 'gender', settings.genderUnknown ))
+				.replace( /\{\{size\}\}/, getPetAttribute( pet, 'size', settings.sizeUnknown ) )
 				.replace( /\{\{breeds\}\}/, getPetAttribute( pet, 'breeds', '' ) )
 				.replace( /\{\{description\}\}/, getPetAttribute( pet, 'description', '' ) )
-				.replace( /\{\{id\}\}/g, pet.id.$t )
-				.replace( /\{\{photo.1.large\}\}/g, getPhoto( pet, 'large', '1' ) )
-				.replace( /\{\{photo.2.large\}\}/g, getPhoto( pet, 'large', '2' ) )
-				.replace( /\{\{photo.3.large\}\}/g, getPhoto( pet, 'large', '3' ) )
-				.replace( /\{\{photo.1.medium\}\}/g, getPhoto( pet, 'medium', '1' ) )
-				.replace( /\{\{photo.2.medium\}\}/g, getPhoto( pet, 'medium', '2' ) )
-				.replace( /\{\{photo.3.medium\}\}/g, getPhoto( pet, 'medium', '3' ) )
-				.replace( /\{\{photo.1.thumbSmall\}\}/g, getPhoto( pet, 'thumbSmall', '1' ) )
-				.replace( /\{\{photo.2.thumbSmall\}\}/g, getPhoto( pet, 'thumbSmall', '2' ) )
-				.replace( /\{\{photo.3.thumbSmall\}\}/g, getPhoto( pet, 'thumbSmall', '3' ) )
-				.replace( /\{\{photo.1.thumbMedium\}\}/g, getPhoto( pet, 'thumbMedium', '1' ) )
-				.replace( /\{\{photo.2.thumbMedium\}\}/g, getPhoto( pet, 'thumbMedium', '2' ) )
-				.replace( /\{\{photo.3.thumbMedium\}\}/g, getPhoto( pet, 'thumbMedium', '3' ) )
-				.replace( /\{\{photo.1.thumbLarge\}\}/g, getPhoto( pet, 'thumbLarge', '1' ) )
-				.replace( /\{\{photo.2.thumbLarge\}\}/g, getPhoto( pet, 'thumbLarge', '2' ) )
-				.replace( /\{\{photo.3.thumbLarge\}\}/g, getPhoto( pet, 'thumbLarge', '3' ) )
-				.replace( /\{\{name\}\}/g, pet.name.$t )
+				.replace( /\{\{photo.1.large\}\}/g, getPetPhoto( pet, 'large', '1' ) )
+				.replace( /\{\{photo.2.large\}\}/g, getPetPhoto( pet, 'large', '2' ) )
+				.replace( /\{\{photo.3.large\}\}/g, getPetPhoto( pet, 'large', '3' ) )
+				.replace( /\{\{photo.1.medium\}\}/g, getPetPhoto( pet, 'medium', '1' ) )
+				.replace( /\{\{photo.2.medium\}\}/g, getPetPhoto( pet, 'medium', '2' ) )
+				.replace( /\{\{photo.3.medium\}\}/g, getPetPhoto( pet, 'medium', '3' ) )
+				.replace( /\{\{photo.1.thumbSmall\}\}/g, getPetPhoto( pet, 'thumbSmall', '1' ) )
+				.replace( /\{\{photo.2.thumbSmall\}\}/g, getPetPhoto( pet, 'thumbSmall', '2' ) )
+				.replace( /\{\{photo.3.thumbSmall\}\}/g, getPetPhoto( pet, 'thumbSmall', '3' ) )
+				.replace( /\{\{photo.1.thumbMedium\}\}/g, getPetPhoto( pet, 'thumbMedium', '1' ) )
+				.replace( /\{\{photo.2.thumbMedium\}\}/g, getPetPhoto( pet, 'thumbMedium', '2' ) )
+				.replace( /\{\{photo.3.thumbMedium\}\}/g, getPetPhoto( pet, 'thumbMedium', '3' ) )
+				.replace( /\{\{photo.1.thumbLarge\}\}/g, getPetPhoto( pet, 'thumbLarge', '1' ) )
+				.replace( /\{\{photo.2.thumbLarge\}\}/g, getPetPhoto( pet, 'thumbLarge', '2' ) )
+				.replace( /\{\{photo.3.thumbLarge\}\}/g, getPetPhoto( pet, 'thumbLarge', '3' ) )
 				.replace( /\{\{options.multi\}\}/, getPetAttribute( pet, 'multiOptions', '' ) )
 				.replace( /\{\{options.specialNeeds\}\}/, getPetAttribute( pet, 'specialNeeds', '' ) )
 				.replace( /\{\{options.noDogs\}\}/, getPetAttribute( pet, 'noDogs', '' ) )
@@ -699,8 +738,15 @@
 				.replace( /\{\{options.hasShots\}\}/, getPetAttribute( pet, 'hasShots', '' ) )
 				.replace( /\{\{options.housebroken\}\}/, getPetAttribute( pet, 'housebroken', '' ) )
 				.replace( /\{\{options.altered\}\}/, getPetAttribute( pet, 'altered', '' ) )
-				.replace( /\{\{gender\}\}/, getPetAttribute( pet, 'gender', settings.genderUnknown ))
-				.replace( /\{\{size\}\}/, getPetAttribute( pet, 'size', settings.sizeUnknown ) )
+				.replace( /\{\{contact.name\}\}/, getPetContact( pet, 'name' ) )
+				.replace( /\{\{contact.email\}\}/, getPetContact( pet, 'email' ) )
+				.replace( /\{\{contact.phone\}\}/, getPetContact( pet, 'phone' ) )
+				.replace( /\{\{contact.address1\}\}/, getPetContact( pet, 'address1' ) )
+				.replace( /\{\{contact.address2\}\}/, getPetContact( pet, 'address2' ) )
+				.replace( /\{\{contact.city\}\}/, getPetContact( pet, 'city' ) )
+				.replace( /\{\{contact.state\}\}/, getPetContact( pet, 'state' ) )
+				.replace( /\{\{contact.zip\}\}/, getPetContact( pet, 'zip' ) )
+				.replace( /\{\{contact.fax\}\}/, getPetContact( pet, 'fax' ) )
 				.replace( /\{\{url.all\}\}/g, baseUrl )
 				.replace( /\{\{url.pet\}\}/g, baseUrl + '?petID=' + pet.id.$t )
 				.replace( /\{\{url.petfinder\}\}/g, 'https://www.petfinder.com/petdetail/' + pet.id.$t )
@@ -893,6 +939,8 @@
 		if ( settings.reverse ) {
 			localAPI.reverse();
 		}
+
+		console.log(localAPI);
 
 		// Get count of pets
 		total = localAPI.pets.length;
