@@ -259,6 +259,9 @@ petfinderAPI4everybody.init({
 	// Breeds Text
 	breedDelimiter: ', ', // Character(s) to use to separate multiple breeds
 
+	// Animal Text
+	animalUnknown: '', // Text when animal type is unknown
+
 	// Size Text
 	sizeUnknown: 'Not Known', // Text when pet size is unknown
 	sizeS: 'Small', // Text for small pets
@@ -392,6 +395,8 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.3.2 - December 15, 2014
+	* Fixed bug with list generation.
 * v0.3.1 - December 14, 2014
 	* Refactored petfinderSort.js for better performance.
 * v0.3.0 - December 14, 2014

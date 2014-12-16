@@ -14,12 +14,15 @@
 	// Variables
 	//
 
-	var publicAPI = {}; // Object for public APIs
-	var supports = !!document.querySelector && !!root.addEventListener && !!root.localStorage; // Feature test
+	var petfinderSort = {}; // Object for public APIs
+	var supports = !!document.querySelector && !!root.addEventListener; // Feature test
+	var sessionID = 'petfinderSortStates'; // sessionStorage ID
+	var states = {}; // Object for checkbox states
+	var settings, eventTimeout, pets, sortBreeds, sortAttributes, sortToggles, hideAll;
 
 	// Default settings
 	var defaults = {
-		someVar: 123,
+		initClass: 'js-petfinder-sort',
 		callbackBefore: function () {},
 		callbackAfter: function () {}
 	};
@@ -69,81 +72,257 @@
 	};
 
 	/**
-	 * Setup save filter settings
-	 * @param  {Element} filter Checkbox element
+	 * Get the closest matching element up the DOM tree
+	 * @param {Element} elem Starting element
+	 * @param {String} selector Selector to match against (class, ID, or data attribute)
+	 * @return {Boolean|Element} Returns false if not match found
 	 */
-	var petfinderSortSave = function (filter) {
-		if ( window.sessionStorage ) {
-			var name = filter.getAttribute('data-target');
-			if ( filter.checked === false ) {
-				sessionStorage.setItem(name, 'unchecked');
-			} else {
-				sessionStorage.removeItem(name);
+	var getClosest = function (elem, selector) {
+		var firstChar = selector.charAt(0);
+		for ( ; elem && elem !== document; elem = elem.parentNode ) {
+			if ( firstChar === '.' ) {
+				if ( elem.classList.contains( selector.substr(1) ) ) {
+					return elem;
+				}
+			} else if ( firstChar === '#' ) {
+				if ( elem.id === selector.substr(1) ) {
+					return elem;
+				}
+			} else if ( firstChar === '[' ) {
+				if ( elem.hasAttribute( selector.substr(1, selector.length - 2) ) ) {
+					return elem;
+				}
 			}
 		}
+		return false;
 	};
 
+	/**
+	 * Save the current state of a checkbox
+	 * @private
+	 * @param  {Node} checkbox The checkbox
+	 */
+	var saveCheckedState = function ( checkbox ) {
+
+		// If sessionStorage isn't supported, end method
+		if ( !root.sessionStorage ) return;
+
+		// Get checkbox target
+		var name = checkbox.getAttribute( 'data-petfinder-sort-target' );
+
+		// If checkbox isn't checked, save state in sessionStorage
+		if ( checkbox.checked === false ) {
+			states[name] = 'unchecked';
+			sessionStorage.setItem( sessionID, JSON.stringify(states) );
+			return;
+		}
+
+		// If checkbox is checked, remove state from sessionStorage
+		delete states[name];
+		sessionStorage.setItem( sessionID, JSON.stringify(states) );
+
+	};
+
+	/**
+	 * Set checkbox state based on sessionStorage data
+	 * @private
+	 * @param  {Node} checkbox The checkbox
+	 */
+	var setCheckedState = function ( checkbox ) {
+
+		// If sessionStorage isn't supported, end method
+		if ( !root.sessionStorage ) return;
+
+		// Get checkbox target and sessionStorage data
+		var name = checkbox.getAttribute( 'data-petfinder-sort-target' );
+		var status = JSON.parse( sessionStorage.getItem( sessionID ) );
+
+		// If checkbox is in sessionStorage, update it's state
+		if ( status && status[name] && status[name] === 'unchecked' ) {
+			checkbox.checked = false;
+		}
+
+	};
+
+	/**
+	 * Get state of all checkboxes
+	 * @private
+	 */
+	var getCheckedStates = function () {
+		forEach(sortBreeds, function (checkbox) { setCheckedState( checkbox ); });
+		forEach(sortAttributes, function (checkbox) { setCheckedState( checkbox ); });
+		forEach(sortToggles, function (checkbox) { setCheckedState( checkbox ); });
+	};
+
+	/**
+	 * Show or hide a node in the DOM
+	 * @private
+	 * @param  {Node}    elem  The node to show or hide
+	 * @param  {Boolean} hide  If true, hide node. Otherwise show.
+	 */
 	var toggleVisibility = function ( elem, hide ) {
 		if ( hide ) {
 			elem.style.display = 'none';
 			elem.style.visibility = 'hidden';
 			return;
 		}
-
 		elem.style.display = 'block';
 		elem.style.visibility = 'visible';
+	};
+
+	/**
+	 * Toggle all checkboxes in a category
+	 * @private
+	 * @param  {Node} checkbox The checkbox
+	 */
+	var toggleAll = function ( checkbox ) {
+
+		// Get checkbox targets
+		var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
+
+		// If checkbox is checked, select all checkboxes
+		if ( checkbox.checked === true ) {
+			forEach(targets, function (target) {
+				target.checked = true;
+				saveCheckedState( target );
+			});
+			return;
+		}
+
+		// If checkbox is unchecked, unselect all checkboxes
+		forEach(targets, function (target) {
+			target.checked = false;
+			saveCheckedState( target );
+		});
 
 	};
 
 	/**
-	 * Setup show/hide filter
+	 * Sort pets based on checkbox selections
+	 * @private
 	 */
-	var petfinderSort = function (pets, petFilterBreeds, petFilterOthers) {
+	var sortPets = function () {
+
+		// Hide or show all pets
 		forEach(pets, function (pet) {
-			console.log(pet);
-			toggleVisibility( pet, true );
+
+			// If breed sorting is available, hide all pets by default
+			if ( hideAll ) {
+				toggleVisibility( pet, true );
+				return;
+			}
+
+			// Otherwise, show all pets by default
+			toggleVisibility( pet );
+
 		});
-		forEach(petFilterBreeds, function (filter) {
-			var sortTargetValue = filter.getAttribute('data-target');
-			var sortTargets = document.querySelectorAll(sortTargetValue);
-			if ( filter.checked === true ) {
-				forEach(sortTargets, function (target) {
+
+		// If breed is checked, show matching pets
+		forEach(sortBreeds, function (checkbox) {
+			if ( checkbox.checked === true ) {
+				var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
+				forEach(targets, function (target) {
 					toggleVisibility( target );
 				});
 			}
 		});
-		forEach(petFilterOthers, function (filter) {
-			var sortTargetValue = filter.getAttribute('data-target');
-			var sortTargets = document.querySelectorAll(sortTargetValue);
-			if ( filter.checked === false ) {
-				forEach(sortTargets, function (target) {
+
+		// If checkbox is unchecked, hide matching pets
+		forEach(sortAttributes, function (checkbox) {
+			if ( checkbox.checked === false ) {
+				var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
+				forEach(targets, function (target) {
 					toggleVisibility( target, true );
 				});
 			}
 		});
+
 	};
 
 	/**
-	 * Get sort settings from localStorage
-	 * @param  {Element} filter Checkbox to get data for
+	 * Show all pets and check all checkboxes
+	 * @private
 	 */
-	var petfinderSortGet = function (filter) {
-		if ( window.sessionStorage ) {
-			var name = filter.getAttribute('data-target');
-			var status = sessionStorage.getItem(name);
-			if ( status === 'unchecked' ) {
-				filter.checked = false;
+	var resetPets = function () {
+
+		// Show all pets
+		forEach(pets, function (pet) {
+			toggleVisibility( pet );
+		});
+
+		// Check all breed checkboxes
+		forEach(sortBreeds, function (checkbox) {
+			checkbox.checked = true;
+		});
+
+		// Check all attribute checkboxes
+		forEach(sortAttributes, function (checkbox) {
+			checkbox.checked = true;
+		});
+
+		// Check all toggle checkboxes
+		forEach(sortToggles, function (checkbox) {
+			checkbox.checked = true;
+		});
+
+	};
+
+	/**
+	 * Handle click events
+	 * @private
+	 * @param {Event} event The click event
+	 */
+	var eventHandler = function (event) {
+
+		// Get clicked object
+		var toggle = event.target;
+		var checkbox = getClosest(toggle, '[data-petfinder-sort]');
+
+		// If a sort checkbox, sort pets
+		if ( checkbox ) {
+
+			// Save checkbox state
+			saveCheckedState( checkbox );
+
+			// If a toggle checkbox, toggle all
+			if ( checkbox.getAttribute( 'data-petfinder-sort' )  === 'toggle' ) {
+				toggleAll( checkbox );
 			}
+
+			// Sort pets
+			sortPets();
+
 		}
+
 	};
 
 	/**
 	 * Destroy the current initialization.
 	 * @public
-	 * @todo
 	 */
-	publicAPI.destroy = function () {
-		// @todo Undo init...
+	petfinderSort.destroy = function () {
+
+		// If plugin isn't already initialized, stop
+		if ( !settings ) return;
+
+		// Remove init class for conditional CSS
+		document.documentElement.classList.remove( settings.initClass );
+
+		resetPets();
+
+		// Remove event listeners
+		document.removeEventListener('click', eventHandler, false);
+
+		// Reset variables
+		states = {};
+		settings = null;
+		eventTimeout = null;
+		pets = null;
+		sortBreeds = null;
+		sortAttributes = null;
+		sortToggles = null;
+		hideAll = null;
+
 	};
 
 	/**
@@ -151,66 +330,31 @@
 	 * @public
 	 * @param {Object} options User settings
 	 */
-	publicAPI.init = function ( options ) {
+	petfinderSort.init = function ( options ) {
 
 		// feature test
 		if ( !supports ) return;
 
+		// Destroy any existing initializations
+		petfinderSort.destroy();
+
 		// Variables
-		var pets = document.querySelectorAll('.pf-pet');
-		var petFilterBreeds = document.querySelectorAll('.pf-breeds');
-		var petFilterOthers = document.querySelectorAll('.pf-sort');
-		var petFilterToggleAll = document.querySelectorAll('.pf-toggle-all');
+		settings = extend( defaults, options || {} ); // Merge user options with defaults
+		pets = document.querySelectorAll('.pf-pet');
+		sortBreeds = document.querySelectorAll('[data-petfinder-sort="breeds"]');
+		sortAttributes = document.querySelectorAll('[data-petfinder-sort="attributes"]');
+		sortToggles = document.querySelectorAll('[data-petfinder-sort="toggle"]');
+		hideAll = sortBreeds.length === 0 ? false : true;
 
-		// Toggle check/uncheck all
-		forEach(petFilterToggleAll, function (filter) {
-			filter.addEventListener('change', function(e) {
-				var sortTargetValue = filter.getAttribute('data-target');
-				var sortTargets = document.querySelectorAll(sortTargetValue);
-				if ( filter.checked === true ) {
-					forEach(sortTargets, function (target) {
-						target.checked = true;
-						petfinderSortSave(target);
-					});
-				} else {
-					forEach(sortTargets, function (target) {
-						target.checked = false;
-						petfinderSortSave(target);
-					});
-				}
-				petfinderSortSave(filter);
-				petfinderSort(pets, petFilterBreeds, petFilterOthers);
-			}, false);
-		});
+		// Add class to HTML element to activate conditional CSS
+		document.documentElement.classList.add( settings.initClass );
 
+		// On page load, set checkbox states and run sort
+		getCheckedStates();
+		sortPets();
 
-		// Run sort when filter is changed
-		forEach(petFilterBreeds, function (filter) {
-			filter.addEventListener('change', function(e) {
-				petfinderSort(pets, petFilterBreeds, petFilterOthers);
-				petfinderSortSave(filter);
-			}, false);
-		});
-
-		forEach(petFilterOthers, function (filter) {
-			filter.addEventListener('change', function(e) {
-				petfinderSort(pets, petFilterBreeds, petFilterOthers);
-				petfinderSortSave(filter);
-			}, false);
-		});
-
-
-		// Load filter settings on page load
-		forEach(petFilterBreeds, function (filter) {
-			petfinderSortGet(filter);
-		});
-		forEach(petFilterOthers, function (filter) {
-			petfinderSortGet(filter);
-		});
-		forEach(petFilterToggleAll, function (filter) {
-			petfinderSortGet(filter);
-		});
-		petfinderSort(pets, petFilterBreeds, petFilterOthers);
+		// Listen for click events
+		document.addEventListener('click', eventHandler, false);
 
 	};
 
@@ -219,6 +363,6 @@
 	// Public APIs
 	//
 
-	return publicAPI;
+	return petfinderSort;
 
 });
