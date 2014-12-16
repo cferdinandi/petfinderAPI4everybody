@@ -34,4 +34,7 @@
 
 	<strong>Gender:</strong>
 	{{checkbox.genders}}
+
+	<strong>Breeds:</strong>
+	{{checkbox.breeds.toggle}}
 </div>

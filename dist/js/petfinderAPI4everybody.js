@@ -19,6 +19,9 @@
 
 	'use strict';
 
+	// @todo Move contact into getPetAttribute
+	// @todo Use getPetAttribute in creatList method
+
 	//
 	// Variables
 	//
@@ -60,6 +63,9 @@
 
 		// Pet photos
 		noImage: '',
+
+		// Animal Text
+		animalUnknown: '',
 
 		// Breeds Text
 		breedDelimiter: ', ',
@@ -549,17 +555,13 @@
 	};
 
 	/**
-	 * Create sorted lists based on available pets
+	 * Create sorted lists of attributes based on available pets
 	 * @private
-	 * @param  {String} type    Characteristic to create a list for
-	 * @param  {String} subType Sub-characteristic to create a list for
-	 *
-	 * Examples:
-	 * createList( 'breeds', 'breed' );
-	 * createList( 'age' );
-	 * createList( 'size' );
+	 * @param  {String} type  Characteristic to create a list for
+	 * @param  {String} start Default value of attribute
+	 * @return {Array}        Array of available attributes
 	 */
-	var createList = function ( type, subType ) {
+	var createList = function ( type, start ) {
 
 		// If list already cached, use that
 		if ( lists[type] ) return lists[type];
@@ -571,27 +573,23 @@
 		// Loop through pet attributes and push unique attributes to an array
 		forEach(localAPI.pets, function ( pet ) {
 
-			// If sub-characteristic, loop again
-			if ( subType && Object.getOwnPropertyNames(pet[type]).length !== 0 ) {
-				forEach(pet[type][subType], function (value) {
-					// If multiple values, loop again
-					if ( Object.prototype.toString.call(value) === '[object Object]' ) {
-						forEach(value, function (subvalue) {
-							if ( list.indexOf( subvalue ) === -1 ) {
-								list.push( subvalue );
-							}
-						});
-						return;
-					}
-					if ( list.indexOf( value ) === -1 ) {
-						list.push( value );
+			// Get attribute in human-readable form
+			var attribute = getPetAttribute( pet, type, start );
+
+			// If type is breeds, split by delimiter and add to array if not already there
+			if ( type === 'breeds' ) {
+				var breeds = attribute.split( settings.breedDelimiter );
+				forEach(breeds, function ( breed ) {
+					if ( list.indexOf( breed ) === -1 ) {
+						list.push( breed );
 					}
 				});
 				return;
 			}
-			// Otherwise, push to array
-			if ( list.indexOf( pet[type].$t ) === -1 ) {
-				list.push( pet[type].$t );
+
+			// Otherwise, add to array if not already there
+			if ( list.indexOf( attribute ) === -1 ) {
+				list.push( attribute );
 			}
 		});
 
@@ -600,19 +598,19 @@
 
 		// If creating list of sizes, sort smallest to largest
 		if ( type === 'size' ) {
-			if ( list.indexOf( 'S' ) !== -1 ) listTemp.push( 'S' );
-			if ( list.indexOf( 'M' ) !== -1 ) listTemp.push( 'M' );
-			if ( list.indexOf( 'L' ) !== -1 ) listTemp.push( 'L' );
-			if ( list.indexOf( 'XL' ) !== -1 ) listTemp.push( 'XL' );
+			if ( list.indexOf( settings.sizeS ) !== -1 ) listTemp.push( settings.sizeS );
+			if ( list.indexOf( settings.sizeM ) !== -1 ) listTemp.push( settings.sizeM );
+			if ( list.indexOf( settings.sizeL ) !== -1 ) listTemp.push( settings.sizeL );
+			if ( list.indexOf( settings.sizeXL ) !== -1 ) listTemp.push( settings.sizeXL );
 			list = listTemp;
 		}
 
 		// If creating a list of ages, sort youngest to oldest
 		if ( type === 'age' ) {
-			if ( list.indexOf( 'Baby' ) !== -1 ) listTemp.push( 'Baby' );
-			if ( list.indexOf( 'Young' ) !== -1 ) listTemp.push( 'Young' );
-			if ( list.indexOf( 'Adult' ) !== -1 ) listTemp.push( 'Adult' );
-			if ( list.indexOf( 'Senior' ) !== -1 ) listTemp.push( 'Senior' );
+			if ( list.indexOf( settings.ageBaby ) !== -1 ) listTemp.push( settings.ageBaby );
+			if ( list.indexOf( settings.ageYoung ) !== -1 ) listTemp.push( settings.ageYoung );
+			if ( list.indexOf( settings.ageAdult ) !== -1 ) listTemp.push( settings.ageAdult );
+			if ( list.indexOf( settings.ageSenior ) !== -1 ) listTemp.push( settings.ageSenior );
 			list = listTemp;
 		}
 
@@ -625,15 +623,15 @@
 	/**
 	 * Create a collection of list items for a pet attribute
 	 * @private
-	 * @param  {String} type    Type of attribute to create list items for
-	 * @param  {String} subtype Subtype if one exists
-	 * @return {String}         A collection of list items
+	 * @param  {String} type  Type of attribute to create list items for
+	 * @param  {String} start Default value of attribute
+	 * @return {String}       A collection of list items
 	 */
-	var createListItems = function ( type, subtype ) {
+	var createListItems = function ( type, start ) {
 
 		// Variables
 		var markup = '';
-		var listItems = createList( type, subtype );
+		var listItems = createList( type, start );
 
 		// Create a list item for each attribute
 		forEach(listItems, function (item) {
@@ -648,19 +646,20 @@
 	 * Create checkboxes for a pet attribute
 	 * @private
 	 * @param  {String} type    Type of attribute to create list items for
+	 * @param  {String} start   Default value of attribute
 	 * @param  {Boolean} toggle If true, add select/unselect all toggle checkbox
 	 * @return {String}         Checkboxes
 	 */
-	var createCheckboxes = function ( type, toggle ) {
+	var createCheckboxes = function ( type, start, toggle ) {
 
 		// Variables
 		var markup = '';
 		var toggleAll = '';
 		var sort = type === 'breeds' ? 'breeds' : 'attributes';
-		var subtype = null;
-		if ( type === 'breeds' ) { subtype = 'breed'; }
-		if ( type === 'options' ) { subtype = 'option'; }
-		var listItems = createList( type, subtype );
+		// var subtype = null;
+		// if ( type === 'breeds' ) { subtype = 'breed'; }
+		// if ( type === 'options' ) { subtype = 'option'; }
+		var listItems = createList( type, start );
 
 		// For each attribute, create a checkbox
 		forEach(listItems, function (item) {
@@ -765,24 +764,24 @@
 		}
 
 		return template
-			.replace( /\{\{list.ages\}\}/, createListItems( 'age' ) )
-			.replace( /\{\{list.animals\}\}/, createListItems( 'animal' ) )
-			.replace( /\{\{list.breeds\}\}/, createListItems( 'breeds', 'breed' ) )
-			.replace( /\{\{list.options\}\}/, createListItems( 'options', 'option' ) )
-			.replace( /\{\{list.genders\}\}/, createListItems( 'sex' ) )
-			.replace( /\{\{list.sizes\}\}/, createListItems( 'size' ) )
-			.replace( /\{\{checkbox.ages\}\}/, createCheckboxes( 'age' ) )
-			.replace( /\{\{checkbox.animals\}\}/, createCheckboxes( 'animal' ) )
-			.replace( /\{\{checkbox.breeds\}\}/, createCheckboxes( 'breeds' ) )
-			.replace( /\{\{checkbox.options\}\}/, createCheckboxes( 'options' ) )
-			.replace( /\{\{checkbox.genders\}\}/, createCheckboxes( 'sex' ) )
-			.replace( /\{\{checkbox.sizes\}\}/, createCheckboxes( 'size' ) )
-			.replace( /\{\{checkbox.ages.toggle\}\}/, createCheckboxes( 'age', true ) )
-			.replace( /\{\{checkbox.animals.toggle\}\}/, createCheckboxes( 'animal', true ) )
-			.replace( /\{\{checkbox.breeds.toggle\}\}/, createCheckboxes( 'breeds', true ) )
-			.replace( /\{\{checkbox.options.toggle\}\}/, createCheckboxes( 'options', true ) )
-			.replace( /\{\{checkbox.genders.toggle\}\}/, createCheckboxes( 'sex', true ) )
-			.replace( /\{\{checkbox.sizes.toggle\}\}/, createCheckboxes( 'size', true ) )
+			.replace( /\{\{list.ages\}\}/, createListItems( 'age', settings.ageUnknown ) )
+			.replace( /\{\{list.animals\}\}/, createListItems( 'animal', settings.animalUnknown ) )
+			.replace( /\{\{list.breeds\}\}/, createListItems( 'breeds', '', 'breed' ) )
+			.replace( /\{\{list.options\}\}/, createListItems( 'options', '', 'option' ) )
+			.replace( /\{\{list.genders\}\}/, createListItems( 'sex', settings.genderUnknown ) )
+			.replace( /\{\{list.sizes\}\}/, createListItems( 'size', settings.sizeUnknown ) )
+			.replace( /\{\{checkbox.ages\}\}/, createCheckboxes( 'age', settings.ageUnknown ) )
+			.replace( /\{\{checkbox.animals\}\}/, createCheckboxes( 'animal', settings.animalUnknown ) )
+			.replace( /\{\{checkbox.breeds\}\}/, createCheckboxes( 'breeds', '' ) )
+			.replace( /\{\{checkbox.options\}\}/, createCheckboxes( 'options', '' ) )
+			.replace( /\{\{checkbox.genders\}\}/, createCheckboxes( 'gender', settings.genderUnknown ) )
+			.replace( /\{\{checkbox.sizes\}\}/, createCheckboxes( 'size', settings.sizeUnknown ) )
+			.replace( /\{\{checkbox.ages.toggle\}\}/, createCheckboxes( 'age', settings.ageUnknown, true ) )
+			.replace( /\{\{checkbox.animals.toggle\}\}/, createCheckboxes( 'animal', settings.animalUnknown, true ) )
+			.replace( /\{\{checkbox.breeds.toggle\}\}/, createCheckboxes( 'breeds', '', true ) )
+			.replace( /\{\{checkbox.options.toggle\}\}/, createCheckboxes( 'options', '', true ) )
+			.replace( /\{\{checkbox.genders.toggle\}\}/, createCheckboxes( 'gender', settings.genderUnknown, true ) )
+			.replace( /\{\{checkbox.sizes.toggle\}\}/, createCheckboxes( 'size', settings.sizeUnknown, true ) )
 			.replace( /\{\{total\}\}/g, total );
 	};
 
