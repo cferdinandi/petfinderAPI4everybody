@@ -6,6 +6,7 @@
 		<script src="dist/js/classList.js"></script>
 		<script src="dist/js/petfinderAPI4everybody.js"></script>
 		<script src="dist/js/petfinderSort.js"></script>
+		<script src="dist/js/petfinderImgToggle.js"></script>
 		<script>
 			;(function (window, document, undefined) {
 
@@ -39,7 +40,10 @@
 					petfinderAPI.init({
 						key: key,
 						shelter: shelter,
-						callbackAfter: function () { petfinderSort.init(); }
+						callbackAfter: function () {
+							petfinderSort.init();
+							petfinderImgToggle.init();
+						}
 					});
 				}, false);
 

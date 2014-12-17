@@ -106,15 +106,15 @@ Include the following variables in your template elements to dynamically add con
 * `{{photo.1.medium}}` - First photo of the pet, medium
 * `{{photo.2.medium}}` - Second photo of the pet, medium
 * `{{photo.3.medium}}` - Third photo of the pet, medium
-* `{{photo.1.thumbSmall}}` - First photo of the pet, small thumbnail
-* `{{photo.2.thumbSmall}}` - Second photo of the pet, small thumbnail
-* `{{photo.3.thumbSmall}}` - Third photo of the pet, small thumbnail
-* `{{photo.1.thumbMedium}}` - First photo of the pet, medium thumbnail
-* `{{photo.2.thumbMedium}}` - Second photo of the pet, medium thumbnail
-* `{{photo.3.thumbMedium}}` - Third photo of the pet, medium thumbnail
-* `{{photo.1.thumbLarge}}` - First photo of the pet, large thumbnail
-* `{{photo.2.thumbLarge}}` - Second photo of the pet, large thumbnail
-* `{{photo.3.thumbLarge}}` - Third photo of the pet, large thumbnail
+* `{{photo.1.thumbnail.small}}` - First photo of the pet, small thumbnail
+* `{{photo.2.thumbnail.small}}` - Second photo of the pet, small thumbnail
+* `{{photo.3.thumbnail.small}}` - Third photo of the pet, small thumbnail
+* `{{photo.1.thumbnail.medium}}` - First photo of the pet, medium thumbnail
+* `{{photo.2.thumbnail.medium}}` - Second photo of the pet, medium thumbnail
+* `{{photo.3.thumbnail.medium}}` - Third photo of the pet, medium thumbnail
+* `{{photo.1.thumbnail.large}}` - First photo of the pet, large thumbnail
+* `{{photo.2.thumbnail.large}}` - Second photo of the pet, large thumbnail
+* `{{photo.3.thumbnail.large}}` - Third photo of the pet, large thumbnail
 * `{{options.specialNeeds}}` - Text if the pet has special needs
 * `{{options.noDogs}}` - Text if the pet can't be in a home with dogs
 * `{{options.noCats}}` - Text if the pet can't be in a home with cats
@@ -349,6 +349,48 @@ If you have a lot of pets, you may want to give users the option of filter by at
 	});
 	```
 
+### Toggling Images
+
+You may wish to display a main photo for each pet and let users toggle between a few thumbnails. The included (but optional) `petfinderImgToggle.js` makes this easy to do.
+
+1. Include the script on your site.
+
+	```html
+	<script src="dist/js/petfinderImgToggle.js"></script>
+	```
+
+2. Add your markup. You can add additional DOM elements, classes, IDs, and any other attributes you like, as long as the hierarchy is preserved.
+
+	```html
+	<div data-petfinder-img-container>
+		<div data-petfinder-img><!-- The image will be loaded here --></div>
+		<div>
+			<a data-petfinder-img-toggle="{{photo.1.large}}" href="#"><img src="{{photo.1.thumbnail.large}}"></a>
+			<a data-petfinder-img-toggle="{{photo.2.large}}" href="#"><img src="{{photo.2.thumbnail.large}}"></a>
+			<a data-petfinder-img-toggle="{{photo.3.large}}" href="#"><img src="{{photo.3.thumbnail.large}}"></a>
+		</div>
+	</div>
+	```
+
+	Add the `[data-petfinder-img-toggle]` attribute to any link that you would like to toggle an image, and set it's value to the image URL. Add the `[data-petfinder-img]` attribute to the element that will contain the full-sized image. Give the parent container a `[data-petfinder-img-container]` attribute.
+
+3. Initialize `petfinderImgToggle.js` as a callback after content is generated.
+
+	```js
+	petfinderAPI4everybody.init({
+		key: '123456789',
+		shelterID: 'AA11',
+		callbackAfter: function () { petfinderImgToggle.init(); }
+	});
+	```
+
+	You can also pass in attributes to get applied to the image:
+
+	```js
+	petfinderImgToggle.init({
+		imgAttributes: 'class="img-photo" data-some-value'
+	});
+	```
 
 ### Use petfinderAPI4everybody.js events in your own scripts
 
@@ -395,6 +437,9 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.4.0 - December 16, 2014
+	* Added image toggle script.
+	* Updated variable names for thumbnail images.
 * v0.3.2 - December 15, 2014
 	* Fixed bug with list generation.
 * v0.3.1 - December 14, 2014

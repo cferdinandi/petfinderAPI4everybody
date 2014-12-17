@@ -7,7 +7,14 @@
 
 <div data-petfinder-template="all" hidden>
 	<div class="{{classes}}">
-		<p><img src="{{photo.1.large}}"></p>
+		<div data-petfinder-img-container>
+			<div data-petfinder-img></div>
+			<p>
+				<a data-petfinder-img-toggle="{{photo.1.large}}" href="#"><img src="{{photo.1.thumbnail.large}}"></a>&nbsp;
+				<a data-petfinder-img-toggle="{{photo.2.large}}" href="#"><img src="{{photo.2.thumbnail.large}}"></a>&nbsp;
+				<a data-petfinder-img-toggle="{{photo.3.large}}" href="#"><img src="{{photo.3.thumbnail.large}}"></a>
+			</p>
+		</div>
 		<h2>{{name}}</h2>
 		<p><a data-petfinder-async href="{{url.pet}}">View Full Profile</a></p>
 		<hr>
