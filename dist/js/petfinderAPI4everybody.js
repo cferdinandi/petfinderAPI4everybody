@@ -1,5 +1,5 @@
 /**
- * petfinderAPI4everybody v0.3.1
+ * petfinderAPI4everybody v0.4.0
  * A JavaScript plugin that makes it easy for anyone to use the Petfinder API, by Chris Ferdinandi.
  * http://github.com/cferdinandi/petfinderAPI4everybody
  * 
@@ -728,15 +728,15 @@
 				.replace( /\{\{photo.1.medium\}\}/g, getPetPhoto( pet, 'medium', '1' ) )
 				.replace( /\{\{photo.2.medium\}\}/g, getPetPhoto( pet, 'medium', '2' ) )
 				.replace( /\{\{photo.3.medium\}\}/g, getPetPhoto( pet, 'medium', '3' ) )
-				.replace( /\{\{photo.1.thumbSmall\}\}/g, getPetPhoto( pet, 'thumbSmall', '1' ) )
-				.replace( /\{\{photo.2.thumbSmall\}\}/g, getPetPhoto( pet, 'thumbSmall', '2' ) )
-				.replace( /\{\{photo.3.thumbSmall\}\}/g, getPetPhoto( pet, 'thumbSmall', '3' ) )
-				.replace( /\{\{photo.1.thumbMedium\}\}/g, getPetPhoto( pet, 'thumbMedium', '1' ) )
-				.replace( /\{\{photo.2.thumbMedium\}\}/g, getPetPhoto( pet, 'thumbMedium', '2' ) )
-				.replace( /\{\{photo.3.thumbMedium\}\}/g, getPetPhoto( pet, 'thumbMedium', '3' ) )
-				.replace( /\{\{photo.1.thumbLarge\}\}/g, getPetPhoto( pet, 'thumbLarge', '1' ) )
-				.replace( /\{\{photo.2.thumbLarge\}\}/g, getPetPhoto( pet, 'thumbLarge', '2' ) )
-				.replace( /\{\{photo.3.thumbLarge\}\}/g, getPetPhoto( pet, 'thumbLarge', '3' ) )
+				.replace( /\{\{photo.1.thumbnail.small\}\}/g, getPetPhoto( pet, 'thumbSmall', '1' ) )
+				.replace( /\{\{photo.2.thumbnail.small\}\}/g, getPetPhoto( pet, 'thumbSmall', '2' ) )
+				.replace( /\{\{photo.3.thumbnail.small\}\}/g, getPetPhoto( pet, 'thumbSmall', '3' ) )
+				.replace( /\{\{photo.1.thumbnail.medium\}\}/g, getPetPhoto( pet, 'thumbMedium', '1' ) )
+				.replace( /\{\{photo.2.thumbnail.medium\}\}/g, getPetPhoto( pet, 'thumbMedium', '2' ) )
+				.replace( /\{\{photo.3.thumbnail.medium\}\}/g, getPetPhoto( pet, 'thumbMedium', '3' ) )
+				.replace( /\{\{photo.1.thumbnail.large\}\}/g, getPetPhoto( pet, 'thumbLarge', '1' ) )
+				.replace( /\{\{photo.2.thumbnail.large\}\}/g, getPetPhoto( pet, 'thumbLarge', '2' ) )
+				.replace( /\{\{photo.3.thumbnail.large\}\}/g, getPetPhoto( pet, 'thumbLarge', '3' ) )
 				.replace( /\{\{options.multi\}\}/, getPetAttribute( pet, 'multiOptions', '' ) )
 				.replace( /\{\{options.specialNeeds\}\}/, getPetAttribute( pet, 'specialNeeds', '' ) )
 				.replace( /\{\{options.noDogs\}\}/, getPetAttribute( pet, 'noDogs', '' ) )
