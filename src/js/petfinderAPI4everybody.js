@@ -10,9 +10,6 @@
 
 	'use strict';
 
-	// @todo Move contact into getPetAttribute
-	// @todo Use getPetAttribute in creatList method
-
 	//
 	// Variables
 	//
@@ -222,6 +219,7 @@
 		// If Petfinder API produces an error, return and fallback to localStorage
 		if ( data.petfinder.header.status.code.$t !== '100' ) {
 			console.log('Unable to get data from Petfinder. Using expired localStorage data instead.');
+			setup();
 			return;
 		}
 

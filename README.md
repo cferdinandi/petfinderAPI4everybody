@@ -437,6 +437,9 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.4.1 - December 22, 2014
+	* Removed closed @todo's from script.
+	* Run setup() method with cached data when API fails.
 * v0.4.0 - December 16, 2014
 	* Added image toggle script.
 	* Updated variable names for thumbnail images.
