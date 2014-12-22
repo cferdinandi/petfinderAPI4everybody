@@ -1,5 +1,5 @@
 /**
- * petfinderAPI4everybody v0.4.0
+ * petfinderAPI4everybody v0.4.1
  * A JavaScript plugin that makes it easy for anyone to use the Petfinder API, by Chris Ferdinandi.
  * http://github.com/cferdinandi/petfinderAPI4everybody
  * 
@@ -18,9 +18,6 @@
 })(window || this, function (root) {
 
 	'use strict';
-
-	// @todo Move contact into getPetAttribute
-	// @todo Use getPetAttribute in creatList method
 
 	//
 	// Variables
@@ -231,6 +228,7 @@
 		// If Petfinder API produces an error, return and fallback to localStorage
 		if ( data.petfinder.header.status.code.$t !== '100' ) {
 			console.log('Unable to get data from Petfinder. Using expired localStorage data instead.');
+			setup();
 			return;
 		}
 
