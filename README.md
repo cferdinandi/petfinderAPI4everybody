@@ -437,6 +437,8 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.4.2 - March 9, 2015
+	* Fixed UMD wrapper.
 * v0.4.1 - December 22, 2014
 	* Removed closed @todo's from script.
 	* Run setup() method with cached data when API fails.
