@@ -437,6 +437,8 @@ petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakething
 
 petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
 
+* v0.4.3 - May 13, 2015
+	* Fixed Browserify `window` bug.
 * v0.4.2 - March 9, 2015
 	* Fixed UMD wrapper.
 * v0.4.1 - December 22, 2014
