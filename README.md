@@ -13,7 +13,6 @@ A JavaScript plugin that makes it easy for anyone to use the [Petfinder API](htt
 6. [Roadmap](#roadmap)
 7. [How to Contribute](#how-to-contribute)
 8. [License](#license)
-9. [Changelog](#changelog)
 
 
 
@@ -430,32 +429,3 @@ In lieu of a formal style guide, take care to maintain the existing coding style
 ## License
 
 petfinderAPI4everybody.js is licensed under the [MIT License](http://gomakethings.com/mit/).
-
-
-
-## Changelog
-
-petfinderAPI4everybody.js uses [semantic versioning](http://semver.org/).
-
-* v0.4.3 - May 13, 2015
-	* Fixed Browserify `window` bug.
-* v0.4.2 - March 9, 2015
-	* Fixed UMD wrapper.
-* v0.4.1 - December 22, 2014
-	* Removed closed @todo's from script.
-	* Run setup() method with cached data when API fails.
-* v0.4.0 - December 16, 2014
-	* Added image toggle script.
-	* Updated variable names for thumbnail images.
-* v0.3.2 - December 15, 2014
-	* Fixed bug with list generation.
-* v0.3.1 - December 14, 2014
-	* Refactored petfinderSort.js for better performance.
-* v0.3.0 - December 14, 2014
-	* Added support for "contact info" variables.
-* v0.2.0 - December 13, 2014
-	* Added `root` prefix to `.location`.
-	* Changed `{{count}}` variable to `{{total}}`.
-	* Added error message when individual pet no longer available.
-* v0.1.0 - December 12, 2014
-	* Beta release.
