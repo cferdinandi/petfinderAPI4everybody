@@ -1,12 +1,12 @@
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define([], factory(root));
+		define(['buoy'], factory(root));
 	} else if ( typeof exports === 'object' ) {
-		module.exports = factory(root);
+		module.exports = factory(root, require('buoy'));
 	} else {
-		root.petfinderSort = factory(root);
+		root.petfinderSort = factory(root, root.buoy);
 	}
-})(typeof global !== "undefined" ? global : this.window || this.global, function (root) {
+})(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
 
 	'use strict';
 
@@ -31,71 +31,6 @@
 	//
 	// Methods
 	//
-
-	/**
-	 * A simple forEach() implementation for Arrays, Objects and NodeLists
-	 * @private
-	 * @param {Array|Object|NodeList} collection Collection of items to iterate
-	 * @param {Function} callback Callback function for each iteration
-	 * @param {Array|Object|NodeList} scope Object/NodeList/Array that forEach is iterating over (aka `this`)
-	 */
-	var forEach = function (collection, callback, scope) {
-		if (Object.prototype.toString.call(collection) === '[object Object]') {
-			for (var prop in collection) {
-				if (Object.prototype.hasOwnProperty.call(collection, prop)) {
-					callback.call(scope, collection[prop], prop, collection);
-				}
-			}
-		} else {
-			for (var i = 0, len = collection.length; i < len; i++) {
-				callback.call(scope, collection[i], i, collection);
-			}
-		}
-	};
-
-	/**
-	 * Merge defaults with user options
-	 * @private
-	 * @param {Object} defaults Default settings
-	 * @param {Object} options User options
-	 * @returns {Object} Merged values of defaults and options
-	 */
-	var extend = function ( defaults, options ) {
-		var extended = {};
-		forEach(defaults, function (value, prop) {
-			extended[prop] = defaults[prop];
-		});
-		forEach(options, function (value, prop) {
-			extended[prop] = options[prop];
-		});
-		return extended;
-	};
-
-	/**
-	 * Get the closest matching element up the DOM tree
-	 * @param {Element} elem Starting element
-	 * @param {String} selector Selector to match against (class, ID, or data attribute)
-	 * @return {Boolean|Element} Returns false if not match found
-	 */
-	var getClosest = function (elem, selector) {
-		var firstChar = selector.charAt(0);
-		for ( ; elem && elem !== document; elem = elem.parentNode ) {
-			if ( firstChar === '.' ) {
-				if ( elem.classList.contains( selector.substr(1) ) ) {
-					return elem;
-				}
-			} else if ( firstChar === '#' ) {
-				if ( elem.id === selector.substr(1) ) {
-					return elem;
-				}
-			} else if ( firstChar === '[' ) {
-				if ( elem.hasAttribute( selector.substr(1, selector.length - 2) ) ) {
-					return elem;
-				}
-			}
-		}
-		return false;
-	};
 
 	/**
 	 * Save the current state of a checkbox
@@ -149,9 +84,9 @@
 	 * @private
 	 */
 	var getCheckedStates = function () {
-		forEach(sortBreeds, function (checkbox) { setCheckedState( checkbox ); });
-		forEach(sortAttributes, function (checkbox) { setCheckedState( checkbox ); });
-		forEach(sortToggles, function (checkbox) { setCheckedState( checkbox ); });
+		buoy.forEach(sortBreeds, function (checkbox) { setCheckedState( checkbox ); });
+		buoy.forEach(sortAttributes, function (checkbox) { setCheckedState( checkbox ); });
+		buoy.forEach(sortToggles, function (checkbox) { setCheckedState( checkbox ); });
 	};
 
 	/**
@@ -182,7 +117,7 @@
 
 		// If checkbox is checked, select all checkboxes
 		if ( checkbox.checked === true ) {
-			forEach(targets, function (target) {
+			buoy.forEach(targets, function (target) {
 				target.checked = true;
 				saveCheckedState( target );
 			});
@@ -190,7 +125,7 @@
 		}
 
 		// If checkbox is unchecked, unselect all checkboxes
-		forEach(targets, function (target) {
+		buoy.forEach(targets, function (target) {
 			target.checked = false;
 			saveCheckedState( target );
 		});
@@ -204,7 +139,7 @@
 	var sortPets = function () {
 
 		// Hide or show all pets
-		forEach(pets, function (pet) {
+		buoy.forEach(pets, function (pet) {
 
 			// If breed sorting is available, hide all pets by default
 			if ( hideAll ) {
@@ -218,20 +153,20 @@
 		});
 
 		// If breed is checked, show matching pets
-		forEach(sortBreeds, function (checkbox) {
+		buoy.forEach(sortBreeds, function (checkbox) {
 			if ( checkbox.checked === true ) {
 				var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
-				forEach(targets, function (target) {
+				buoy.forEach(targets, function (target) {
 					toggleVisibility( target );
 				});
 			}
 		});
 
 		// If checkbox is unchecked, hide matching pets
-		forEach(sortAttributes, function (checkbox) {
+		buoy.forEach(sortAttributes, function (checkbox) {
 			if ( checkbox.checked === false ) {
 				var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
-				forEach(targets, function (target) {
+				buoy.forEach(targets, function (target) {
 					toggleVisibility( target, true );
 				});
 			}
@@ -246,22 +181,22 @@
 	var resetPets = function () {
 
 		// Show all pets
-		forEach(pets, function (pet) {
+		buoy.forEach(pets, function (pet) {
 			toggleVisibility( pet );
 		});
 
 		// Check all breed checkboxes
-		forEach(sortBreeds, function (checkbox) {
+		buoy.forEach(sortBreeds, function (checkbox) {
 			checkbox.checked = true;
 		});
 
 		// Check all attribute checkboxes
-		forEach(sortAttributes, function (checkbox) {
+		buoy.forEach(sortAttributes, function (checkbox) {
 			checkbox.checked = true;
 		});
 
 		// Check all toggle checkboxes
-		forEach(sortToggles, function (checkbox) {
+		buoy.forEach(sortToggles, function (checkbox) {
 			checkbox.checked = true;
 		});
 
@@ -276,7 +211,7 @@
 
 		// Get clicked object
 		var toggle = event.target;
-		var checkbox = getClosest(toggle, '[data-petfinder-sort]');
+		var checkbox = buoy.getClosest(toggle, '[data-petfinder-sort]');
 
 		// If a sort checkbox, sort pets
 		if ( checkbox ) {
@@ -339,7 +274,7 @@
 		petfinderSort.destroy();
 
 		// Variables
-		settings = extend( defaults, options || {} ); // Merge user options with defaults
+		settings = buoy.extend( defaults, options || {} ); // Merge user options with defaults
 		pets = document.querySelectorAll('.pf-pet');
 		sortBreeds = document.querySelectorAll('[data-petfinder-sort="breeds"]');
 		sortAttributes = document.querySelectorAll('[data-petfinder-sort="attributes"]');

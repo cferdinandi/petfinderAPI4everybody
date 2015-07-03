@@ -1,12 +1,12 @@
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define([], factory(root));
+		define(['buoy'], factory(root));
 	} else if ( typeof exports === 'object' ) {
-		module.exports = factory(root);
+		module.exports = factory(root, require('buoy'));
 	} else {
-		root.petfinderAPI = factory(root);
+		root.petfinderAPI = factory(root, root.buoy);
 	}
-})(typeof global !== "undefined" ? global : this.window || this.global, function (root) {
+})(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
 
 	'use strict';
 
@@ -113,45 +113,6 @@
 	//
 	// Methods
 	//
-
-	/**
-	 * A simple forEach() implementation for Arrays, Objects and NodeLists
-	 * @private
-	 * @param {Array|Object|NodeList} collection Collection of items to iterate
-	 * @param {Function} callback Callback function for each iteration
-	 * @param {Array|Object|NodeList} scope Object/NodeList/Array that forEach is iterating over (aka `this`)
-	 */
-	var forEach = function (collection, callback, scope) {
-		if (Object.prototype.toString.call(collection) === '[object Object]') {
-			for (var prop in collection) {
-				if (Object.prototype.hasOwnProperty.call(collection, prop)) {
-					callback.call(scope, collection[prop], prop, collection);
-				}
-			}
-		} else {
-			for (var i = 0, len = collection.length; i < len; i++) {
-				callback.call(scope, collection[i], i, collection);
-			}
-		}
-	};
-
-	/**
-	 * Merge defaults with user options
-	 * @private
-	 * @param {Object} defaults Default settings
-	 * @param {Object} options User options
-	 * @returns {Object} Merged values of defaults and options
-	 */
-	var extend = function ( defaults, options ) {
-		var extended = {};
-		forEach(defaults, function (value, prop) {
-			extended[prop] = defaults[prop];
-		});
-		forEach(options, function (value, prop) {
-			extended[prop] = options[prop];
-		});
-		return extended;
-	};
 
 	/**
 	 * Create Petfinder API request URL with callback
@@ -291,7 +252,7 @@
 		 */
 		var getPetOption = function ( option, value ) {
 			if ( !pet.options.option ) return;
-			forEach(pet.options.option, function (opt) {
+			buoy.forEach(pet.options.option, function (opt) {
 				if ( opt.$t === option ) {
 					attribute = value;
 				}
@@ -313,7 +274,7 @@
 				return attribute;
 			}
 
-			forEach(pet.breeds.breed, function (breed, index) {
+			buoy.forEach(pet.breeds.breed, function (breed, index) {
 				attribute += index === 0 ? '' : settings.breedDelimiter;
 				attribute += breed.$t;
 			});
@@ -345,7 +306,7 @@
 		if ( type === 'multiOptions' ) {
 			var noCats, noDogs, noKids;
 			if ( !pet.options.option ) return;
-			forEach(pet.options.option, function (opt) {
+			buoy.forEach(pet.options.option, function (opt) {
 				if ( opt.$t === 'noCats' ) { noCats = true; }
 				if ( opt.$t === 'noDogs' ) { noDogs = true; }
 				if ( opt.$t === 'noKids' ) { noKids = true; }
@@ -395,7 +356,7 @@
 		if ( size === 'thumbLarge' ) { quality = 'fpm'; }
 
 		// Loop through available photos until finding a match
-		forEach(pet.media.photos.photo, function (photo) {
+		buoy.forEach(pet.media.photos.photo, function (photo) {
 			if ( photo['@size'] === quality && photo['@id'] === num ) {
 				image = photo.$t;
 				return;
@@ -498,7 +459,7 @@
 	 */
 	var condenseArray = function ( arr, prefix ) {
 		var text = '';
-		forEach(arr, function (value) {
+		buoy.forEach(arr, function (value) {
 			text += ' ' + condenseString( value.$t, prefix );
 		});
 		return text;
@@ -511,7 +472,7 @@
 		}
 
 		var breeds = '';
-		forEach(pet.breeds.breed, function (breed, index) {
+		buoy.forEach(pet.breeds.breed, function (breed, index) {
 			breeds += ' ' + condenseString( breed.$t, true );
 		});
 		return breeds;
@@ -560,7 +521,7 @@
 		var listTemp = [];
 
 		// Loop through pet attributes and push unique attributes to an array
-		forEach(localAPI.pets, function ( pet ) {
+		buoy.forEach(localAPI.pets, function ( pet ) {
 
 			// Get attribute in human-readable form
 			var attribute = getPetAttribute( pet, type, start );
@@ -568,7 +529,7 @@
 			// If type is breeds, split by delimiter and add to array if not already there
 			if ( type === 'breeds' ) {
 				var breeds = attribute.split( settings.breedDelimiter );
-				forEach(breeds, function ( breed ) {
+				buoy.forEach(breeds, function ( breed ) {
 					if ( list.indexOf( breed ) === -1 ) {
 						list.push( breed );
 					}
@@ -623,7 +584,7 @@
 		var listItems = createList( type, start );
 
 		// Create a list item for each attribute
-		forEach(listItems, function (item) {
+		buoy.forEach(listItems, function (item) {
 			markup +=
 				'<li>' + item +'</li>';
 		});
@@ -651,7 +612,7 @@
 		var listItems = createList( type, start );
 
 		// For each attribute, create a checkbox
-		forEach(listItems, function (item) {
+		buoy.forEach(listItems, function (item) {
 			var target = condenseString( item, true );
 			markup +=
 				'<label>' +
@@ -793,7 +754,7 @@
 	 */
 	var getPetByID = function ( petID ) {
 		var petData = {};
-		forEach(localAPI.pets, function (pet, index) {
+		buoy.forEach(localAPI.pets, function (pet, index) {
 			if ( pet.id.$t === petID ) {
 				petData.pet = pet;
 				petData.number = index.toString();
@@ -826,7 +787,7 @@
 
 		// Create markup for each pet
 		var markup = '';
-		forEach(localAPI.pets, function (pet, index) {
+		buoy.forEach(localAPI.pets, function (pet, index) {
 			markup += createTemplateMarkup( pet, templates.allPets, index );
 		});
 
@@ -1040,7 +1001,7 @@
 		petfinderAPI.destroy();
 
 		// Merge user options with defaults
-		settings = extend( defaults, options || {} );
+		settings = buoy.extend( defaults, options || {} );
 
 		// If API key or shelter ID are not provided, end init and log error
 		if ( !settings.key || !settings.shelter ) {
