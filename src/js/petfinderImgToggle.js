@@ -1,12 +1,12 @@
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define([], factory(root));
+		define(['buoy'], factory(root, require('buoy')));
 	} else if ( typeof exports === 'object' ) {
 		module.exports = factory(root);
 	} else {
-		root.petfinderImgToggle = factory(root);
+		root.petfinderImgToggle = factory(root, root.buoy);
 	}
-})(typeof global !== "undefined" ? global : this.window || this.global, function (root) {
+})(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
 
 	'use strict';
 
@@ -32,71 +32,6 @@
 	//
 
 	/**
-	 * A simple forEach() implementation for Arrays, Objects and NodeLists
-	 * @private
-	 * @param {Array|Object|NodeList} collection Collection of items to iterate
-	 * @param {Function} callback Callback function for each iteration
-	 * @param {Array|Object|NodeList} scope Object/NodeList/Array that forEach is iterating over (aka `this`)
-	 */
-	var forEach = function (collection, callback, scope) {
-		if (Object.prototype.toString.call(collection) === '[object Object]') {
-			for (var prop in collection) {
-				if (Object.prototype.hasOwnProperty.call(collection, prop)) {
-					callback.call(scope, collection[prop], prop, collection);
-				}
-			}
-		} else {
-			for (var i = 0, len = collection.length; i < len; i++) {
-				callback.call(scope, collection[i], i, collection);
-			}
-		}
-	};
-
-	/**
-	 * Merge defaults with user options
-	 * @private
-	 * @param {Object} defaults Default settings
-	 * @param {Object} options User options
-	 * @returns {Object} Merged values of defaults and options
-	 */
-	var extend = function ( defaults, options ) {
-		var extended = {};
-		forEach(defaults, function (value, prop) {
-			extended[prop] = defaults[prop];
-		});
-		forEach(options, function (value, prop) {
-			extended[prop] = options[prop];
-		});
-		return extended;
-	};
-
-	/**
-	 * Get the closest matching element up the DOM tree
-	 * @param {Element} elem Starting element
-	 * @param {String} selector Selector to match against (class, ID, or data attribute)
-	 * @return {Boolean|Element} Returns false if not match found
-	 */
-	var getClosest = function (elem, selector) {
-		var firstChar = selector.charAt(0);
-		for ( ; elem && elem !== document; elem = elem.parentNode ) {
-			if ( firstChar === '.' ) {
-				if ( elem.classList.contains( selector.substr(1) ) ) {
-					return elem;
-				}
-			} else if ( firstChar === '#' ) {
-				if ( elem.id === selector.substr(1) ) {
-					return elem;
-				}
-			} else if ( firstChar === '[' ) {
-				if ( elem.hasAttribute( selector.substr(1, selector.length - 2) ) ) {
-					return elem;
-				}
-			}
-		}
-		return false;
-	};
-
-	/**
 	 * Load an image into the main image container
 	 * @private
 	 * @param  {Node} toggle Element that triggered the event
@@ -107,7 +42,7 @@
 		if ( !toggle ) return;
 
 		// Variables
-		var container = getClosest(toggle, '[data-petfinder-img-container]');
+		var container = buoy.getClosest(toggle, '[data-petfinder-img-container]');
 		if ( !container ) return;
 		var img = container.querySelector( '[data-petfinder-img]' );
 		if ( !img ) return;
@@ -123,7 +58,7 @@
 	 */
 	var eventHandler = function (event) {
 		var toggle = event.target;
-		var closest = getClosest(toggle, '[data-petfinder-img-toggle]');
+		var closest = buoy.getClosest(toggle, '[data-petfinder-img-toggle]');
 		if ( closest ) {
 			event.preventDefault();
 			toggleImage( closest );
@@ -166,14 +101,14 @@
 		petfinderImgToggle.destroy();
 
 		// Variables
-		settings = extend( defaults, options || {} ); // Merge user options with defaults
+		settings = buoy.extend( defaults, options || {} ); // Merge user options with defaults
 		containers = document.querySelectorAll( '[data-petfinder-img-container]' );
 
 		// Add class to HTML element to activate conditional CSS
 		document.documentElement.classList.add( settings.initClass );
 
 		// Toggle first image on page load
-		forEach(containers, function (container) {
+		buoy.forEach(containers, function (container) {
 			toggleImage( container.querySelector( '[data-petfinder-img-toggle]' ) );
 		});
 
