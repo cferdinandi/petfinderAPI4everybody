@@ -1,5 +1,5 @@
 /**
- * petfinderAPI4everybody v1.0.0
+ * petfinderAPI4everybody v2.0.0
  * A JavaScript plugin that makes it easy for anyone to use the Petfinder API, by Chris Ferdinandi.
  * http://github.com/cferdinandi/petfinderAPI4everybody
  * 
@@ -9,11 +9,11 @@
 
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define(['buoy'], factory(root));
+		define([], factory(root));
 	} else if ( typeof exports === 'object' ) {
-		module.exports = factory(root, require('buoy'));
+		module.exports = factory(root);
 	} else {
-		root.petfinderAPI = factory(root, root.buoy);
+		root.petfinderAPI = factory(root);
 	}
 })(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
 
@@ -114,14 +114,81 @@
 		contactFax: '',
 
 		// Callbacks
-		callbackBefore: function () {},
-		callbackAfter: function () {}
+		callback: function () {}
 	};
 
 
 	//
 	// Methods
 	//
+
+	/**
+	 * A simple forEach() implementation for Arrays, Objects and NodeLists.
+	 * @private
+	 * @author Todd Motto
+	 * @link   https://github.com/toddmotto/foreach
+	 * @param {Array|Object|NodeList} collection Collection of items to iterate
+	 * @param {Function}              callback   Callback function for each iteration
+	 * @param {Array|Object|NodeList} scope      Object/NodeList/Array that forEach is iterating over (aka `this`)
+	 */
+	var forEach = function ( collection, callback, scope ) {
+		if ( Object.prototype.toString.call( collection ) === '[object Object]' ) {
+			for ( var prop in collection ) {
+				if ( Object.prototype.hasOwnProperty.call( collection, prop ) ) {
+					callback.call( scope, collection[prop], prop, collection );
+				}
+			}
+		} else {
+			for ( var i = 0, len = collection.length; i < len; i++ ) {
+				callback.call( scope, collection[i], i, collection );
+			}
+		}
+	};
+
+	/**
+	 * Merge two or more objects. Returns a new object.
+	 * @private
+	 * @param {Boolean}  deep     If true, do a deep (or recursive) merge [optional]
+	 * @param {Object}   objects  The objects to merge together
+	 * @returns {Object}          Merged values of defaults and options
+	 */
+	var extend = function () {
+
+		// Variables
+		var extended = {};
+		var deep = false;
+		var i = 0;
+		var length = arguments.length;
+
+		// Check if a deep merge
+		if ( Object.prototype.toString.call( arguments[0] ) === '[object Boolean]' ) {
+			deep = arguments[0];
+			i++;
+		}
+
+		// Merge the object into the extended object
+		var merge = function (obj) {
+			for ( var prop in obj ) {
+				if ( Object.prototype.hasOwnProperty.call( obj, prop ) ) {
+					// If deep merge and property is an object, merge properties
+					if ( deep && Object.prototype.toString.call(obj[prop]) === '[object Object]' ) {
+						extended[prop] = extend( true, extended[prop], obj[prop] );
+					} else {
+						extended[prop] = obj[prop];
+					}
+				}
+			}
+		};
+
+		// Loop through each object and conduct a merge
+		for ( ; i < length; i++ ) {
+			var obj = arguments[i];
+			merge(obj);
+		}
+
+		return extended;
+
+	};
 
 	/**
 	 * Create Petfinder API request URL with callback
@@ -261,7 +328,7 @@
 		 */
 		var getPetOption = function ( option, value ) {
 			if ( !pet.options.option ) return;
-			buoy.forEach(pet.options.option, function (opt) {
+			forEach(pet.options.option, function (opt) {
 				if ( opt.$t === option ) {
 					attribute = value;
 				}
@@ -283,7 +350,7 @@
 				return attribute;
 			}
 
-			buoy.forEach(pet.breeds.breed, function (breed, index) {
+			forEach(pet.breeds.breed, function (breed, index) {
 				attribute += index === 0 ? '' : settings.breedDelimiter;
 				attribute += breed.$t;
 			});
@@ -315,7 +382,7 @@
 		if ( type === 'multiOptions' ) {
 			var noCats, noDogs, noKids;
 			if ( !pet.options.option ) return;
-			buoy.forEach(pet.options.option, function (opt) {
+			forEach(pet.options.option, function (opt) {
 				if ( opt.$t === 'noCats' ) { noCats = true; }
 				if ( opt.$t === 'noDogs' ) { noDogs = true; }
 				if ( opt.$t === 'noKids' ) { noKids = true; }
@@ -365,7 +432,7 @@
 		if ( size === 'thumbLarge' ) { quality = 'fpm'; }
 
 		// Loop through available photos until finding a match
-		buoy.forEach(pet.media.photos.photo, function (photo) {
+		forEach(pet.media.photos.photo, function (photo) {
 			if ( photo['@size'] === quality && photo['@id'] === num ) {
 				image = photo.$t;
 				return;
@@ -468,7 +535,7 @@
 	 */
 	var condenseArray = function ( arr, prefix ) {
 		var text = '';
-		buoy.forEach(arr, function (value) {
+		forEach(arr, function (value) {
 			text += ' ' + condenseString( value.$t, prefix );
 		});
 		return text;
@@ -481,7 +548,7 @@
 		}
 
 		var breeds = '';
-		buoy.forEach(pet.breeds.breed, function (breed, index) {
+		forEach(pet.breeds.breed, function (breed, index) {
 			breeds += ' ' + condenseString( breed.$t, true );
 		});
 		return breeds;
@@ -530,7 +597,7 @@
 		var listTemp = [];
 
 		// Loop through pet attributes and push unique attributes to an array
-		buoy.forEach(localAPI.pets, function ( pet ) {
+		forEach(localAPI.pets, function ( pet ) {
 
 			// Get attribute in human-readable form
 			var attribute = getPetAttribute( pet, type, start );
@@ -538,7 +605,7 @@
 			// If type is breeds, split by delimiter and add to array if not already there
 			if ( type === 'breeds' ) {
 				var breeds = attribute.split( settings.breedDelimiter );
-				buoy.forEach(breeds, function ( breed ) {
+				forEach(breeds, function ( breed ) {
 					if ( list.indexOf( breed ) === -1 ) {
 						list.push( breed );
 					}
@@ -593,7 +660,7 @@
 		var listItems = createList( type, start );
 
 		// Create a list item for each attribute
-		buoy.forEach(listItems, function (item) {
+		forEach(listItems, function (item) {
 			markup +=
 				'<li>' + item +'</li>';
 		});
@@ -621,7 +688,7 @@
 		var listItems = createList( type, start );
 
 		// For each attribute, create a checkbox
-		buoy.forEach(listItems, function (item) {
+		forEach(listItems, function (item) {
 			var target = condenseString( item, true );
 			markup +=
 				'<label>' +
@@ -763,7 +830,7 @@
 	 */
 	var getPetByID = function ( petID ) {
 		var petData = {};
-		buoy.forEach(localAPI.pets, function (pet, index) {
+		forEach(localAPI.pets, function (pet, index) {
 			if ( pet.id.$t === petID ) {
 				petData.pet = pet;
 				petData.number = index.toString();
@@ -796,7 +863,7 @@
 
 		// Create markup for each pet
 		var markup = '';
-		buoy.forEach(localAPI.pets, function (pet, index) {
+		forEach(localAPI.pets, function (pet, index) {
 			markup += createTemplateMarkup( pet, templates.allPets, index );
 		});
 
@@ -861,9 +928,6 @@
 	 */
 	var run = function ( pet, push ) {
 
-		// Callback before content is rendered
-		settings.callbackBefore();
-
 		// Scroll to the top of the page
 		root.scrollTo( 0, 0 );
 
@@ -874,7 +938,7 @@
 			if ( push ) {
 				updateURL( baseUrl + '?petID=' + pet[1] );
 			}
-			settings.callbackAfter(); // Run callback after content is rendered
+			settings.callback(); // Run callback after content is rendered
 			return;
 		}
 
@@ -1010,7 +1074,7 @@
 		petfinderAPI.destroy();
 
 		// Merge user options with defaults
-		settings = buoy.extend( defaults, options || {} );
+		settings = extend( defaults, options || {} );
 
 		// If API key or shelter ID are not provided, end init and log error
 		if ( !settings.key || !settings.shelter ) {

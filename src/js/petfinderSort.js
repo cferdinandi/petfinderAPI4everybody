@@ -1,10 +1,10 @@
 (function (root, factory) {
 	if ( typeof define === 'function' && define.amd ) {
-		define(['buoy'], factory(root));
+		define([], factory(root));
 	} else if ( typeof exports === 'object' ) {
-		module.exports = factory(root, require('buoy'));
+		module.exports = factory(root);
 	} else {
-		root.petfinderSort = factory(root, root.buoy);
+		root.petfinderSort = factory(root);
 	}
 })(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
 
@@ -23,14 +23,153 @@
 	// Default settings
 	var defaults = {
 		initClass: 'js-petfinder-sort',
-		callbackBefore: function () {},
-		callbackAfter: function () {}
+		callback: function () {}
 	};
 
 
 	//
 	// Methods
 	//
+
+	/**
+	 * A simple forEach() implementation for Arrays, Objects and NodeLists.
+	 * @private
+	 * @author Todd Motto
+	 * @link   https://github.com/toddmotto/foreach
+	 * @param {Array|Object|NodeList} collection Collection of items to iterate
+	 * @param {Function}              callback   Callback function for each iteration
+	 * @param {Array|Object|NodeList} scope      Object/NodeList/Array that forEach is iterating over (aka `this`)
+	 */
+	var forEach = function ( collection, callback, scope ) {
+		if ( Object.prototype.toString.call( collection ) === '[object Object]' ) {
+			for ( var prop in collection ) {
+				if ( Object.prototype.hasOwnProperty.call( collection, prop ) ) {
+					callback.call( scope, collection[prop], prop, collection );
+				}
+			}
+		} else {
+			for ( var i = 0, len = collection.length; i < len; i++ ) {
+				callback.call( scope, collection[i], i, collection );
+			}
+		}
+	};
+
+	/**
+	 * Merge two or more objects. Returns a new object.
+	 * @private
+	 * @param {Boolean}  deep     If true, do a deep (or recursive) merge [optional]
+	 * @param {Object}   objects  The objects to merge together
+	 * @returns {Object}          Merged values of defaults and options
+	 */
+	var extend = function () {
+
+		// Variables
+		var extended = {};
+		var deep = false;
+		var i = 0;
+		var length = arguments.length;
+
+		// Check if a deep merge
+		if ( Object.prototype.toString.call( arguments[0] ) === '[object Boolean]' ) {
+			deep = arguments[0];
+			i++;
+		}
+
+		// Merge the object into the extended object
+		var merge = function (obj) {
+			for ( var prop in obj ) {
+				if ( Object.prototype.hasOwnProperty.call( obj, prop ) ) {
+					// If deep merge and property is an object, merge properties
+					if ( deep && Object.prototype.toString.call(obj[prop]) === '[object Object]' ) {
+						extended[prop] = extend( true, extended[prop], obj[prop] );
+					} else {
+						extended[prop] = obj[prop];
+					}
+				}
+			}
+		};
+
+		// Loop through each object and conduct a merge
+		for ( ; i < length; i++ ) {
+			var obj = arguments[i];
+			merge(obj);
+		}
+
+		return extended;
+
+	};
+
+	/**
+	 * Get the closest matching element up the DOM tree.
+	 * @private
+	 * @param  {Element} elem     Starting element
+	 * @param  {String}  selector Selector to match against (class, ID, data attribute, or tag)
+	 * @return {Boolean|Element}  Returns null if not match found
+	 */
+	var getClosest = function ( elem, selector ) {
+
+		// Variables
+		var firstChar = selector.charAt(0);
+		var supports = 'classList' in document.documentElement;
+		var attribute, value;
+
+		// If selector is a data attribute, split attribute from value
+		if ( firstChar === '[' ) {
+			selector = selector.substr(1, selector.length - 2);
+			attribute = selector.split( '=' );
+
+			if ( attribute.length > 1 ) {
+				value = true;
+				attribute[1] = attribute[1].replace( /"/g, '' ).replace( /'/g, '' );
+			}
+		}
+
+		// Get closest match
+		for ( ; elem && elem !== document; elem = elem.parentNode ) {
+
+			// If selector is a class
+			if ( firstChar === '.' ) {
+				if ( supports ) {
+					if ( elem.classList.contains( selector.substr(1) ) ) {
+						return elem;
+					}
+				} else {
+					if ( new RegExp('(^|\\s)' + selector.substr(1) + '(\\s|$)').test( elem.className ) ) {
+						return elem;
+					}
+				}
+			}
+
+			// If selector is an ID
+			if ( firstChar === '#' ) {
+				if ( elem.id === selector.substr(1) ) {
+					return elem;
+				}
+			}
+
+			// If selector is a data attribute
+			if ( firstChar === '[' ) {
+				if ( elem.hasAttribute( attribute[0] ) ) {
+					if ( value ) {
+						if ( elem.getAttribute( attribute[0] ) === attribute[1] ) {
+							return elem;
+						}
+					} else {
+						return elem;
+					}
+				}
+			}
+
+			// If selector is a tag
+			if ( elem.tagName.toLowerCase() === selector ) {
+				return elem;
+			}
+
+		}
+
+		return null;
+
+	};
 
 	/**
 	 * Save the current state of a checkbox
@@ -49,12 +188,14 @@
 		if ( checkbox.checked === false ) {
 			states[name] = 'unchecked';
 			sessionStorage.setItem( sessionID, JSON.stringify(states) );
+			settings.callback( checkbox ); // Callback
 			return;
 		}
 
 		// If checkbox is checked, remove state from sessionStorage
 		delete states[name];
 		sessionStorage.setItem( sessionID, JSON.stringify(states) );
+		settings.callback( checkbox ); // Callback
 
 	};
 
@@ -84,9 +225,9 @@
 	 * @private
 	 */
 	var getCheckedStates = function () {
-		buoy.forEach(sortBreeds, function (checkbox) { setCheckedState( checkbox ); });
-		buoy.forEach(sortAttributes, function (checkbox) { setCheckedState( checkbox ); });
-		buoy.forEach(sortToggles, function (checkbox) { setCheckedState( checkbox ); });
+		forEach(sortBreeds, function (checkbox) { setCheckedState( checkbox ); });
+		forEach(sortAttributes, function (checkbox) { setCheckedState( checkbox ); });
+		forEach(sortToggles, function (checkbox) { setCheckedState( checkbox ); });
 	};
 
 	/**
@@ -117,7 +258,7 @@
 
 		// If checkbox is checked, select all checkboxes
 		if ( checkbox.checked === true ) {
-			buoy.forEach(targets, function (target) {
+			forEach(targets, function (target) {
 				target.checked = true;
 				saveCheckedState( target );
 			});
@@ -125,7 +266,7 @@
 		}
 
 		// If checkbox is unchecked, unselect all checkboxes
-		buoy.forEach(targets, function (target) {
+		forEach(targets, function (target) {
 			target.checked = false;
 			saveCheckedState( target );
 		});
@@ -139,7 +280,7 @@
 	var sortPets = function () {
 
 		// Hide or show all pets
-		buoy.forEach(pets, function (pet) {
+		forEach(pets, function (pet) {
 
 			// If breed sorting is available, hide all pets by default
 			if ( hideAll ) {
@@ -153,20 +294,20 @@
 		});
 
 		// If breed is checked, show matching pets
-		buoy.forEach(sortBreeds, function (checkbox) {
+		forEach(sortBreeds, function (checkbox) {
 			if ( checkbox.checked === true ) {
 				var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
-				buoy.forEach(targets, function (target) {
+				forEach(targets, function (target) {
 					toggleVisibility( target );
 				});
 			}
 		});
 
 		// If checkbox is unchecked, hide matching pets
-		buoy.forEach(sortAttributes, function (checkbox) {
+		forEach(sortAttributes, function (checkbox) {
 			if ( checkbox.checked === false ) {
 				var targets = document.querySelectorAll( checkbox.getAttribute( 'data-petfinder-sort-target' ) );
-				buoy.forEach(targets, function (target) {
+				forEach(targets, function (target) {
 					toggleVisibility( target, true );
 				});
 			}
@@ -181,22 +322,22 @@
 	var resetPets = function () {
 
 		// Show all pets
-		buoy.forEach(pets, function (pet) {
+		forEach(pets, function (pet) {
 			toggleVisibility( pet );
 		});
 
 		// Check all breed checkboxes
-		buoy.forEach(sortBreeds, function (checkbox) {
+		forEach(sortBreeds, function (checkbox) {
 			checkbox.checked = true;
 		});
 
 		// Check all attribute checkboxes
-		buoy.forEach(sortAttributes, function (checkbox) {
+		forEach(sortAttributes, function (checkbox) {
 			checkbox.checked = true;
 		});
 
 		// Check all toggle checkboxes
-		buoy.forEach(sortToggles, function (checkbox) {
+		forEach(sortToggles, function (checkbox) {
 			checkbox.checked = true;
 		});
 
@@ -211,7 +352,7 @@
 
 		// Get clicked object
 		var toggle = event.target;
-		var checkbox = buoy.getClosest(toggle, '[data-petfinder-sort]');
+		var checkbox = getClosest(toggle, '[data-petfinder-sort]');
 
 		// If a sort checkbox, sort pets
 		if ( checkbox ) {
@@ -274,7 +415,7 @@
 		petfinderSort.destroy();
 
 		// Variables
-		settings = buoy.extend( defaults, options || {} ); // Merge user options with defaults
+		settings = extend( defaults, options || {} ); // Merge user options with defaults
 		pets = document.querySelectorAll('.pf-pet');
 		sortBreeds = document.querySelectorAll('[data-petfinder-sort="breeds"]');
 		sortAttributes = document.querySelectorAll('[data-petfinder-sort="attributes"]');
