@@ -24,11 +24,10 @@ Compiled and production-ready code can be found in the `dist` directory. The `sr
 
 ```html
 <script src="dist/js/classList.js"></script>
-<script src="dist/js/buoy.js"></script>
 <script src="dist/js/petfinderAPI4everybody.js"></script>
 ```
 
-petfinderAPI4everybody.js requires [classList.js](https://github.com/eligrey/classList.js), a polyfill that extends ECMAScript 5 API support to more browsers. It also requires [Buoy](https://github.com/cferdinandi/buoy), a lightweight collection of helper methods for getting stuff done with native JavaScript.
+petfinderAPI4everybody.js requires [classList.js](https://github.com/eligrey/classList.js), a polyfill that extends ECMAScript 5 API support to more browsers.
 
 ### 2. Add the markup to your HTML.
 
@@ -308,8 +307,7 @@ petfinderAPI4everybody.init({
 	contactFax: '', // Text when pet's contact fax number is missing
 
 	// Callbacks
-	callbackBefore: function () {}, // Callback to run each time pet content is loaded
-	callbackAfter: function () {} // Callback to run after each time pet content is generated
+	callback: function () {} // Callback to run after each time pet content is generated
 });
 ```
 
@@ -344,7 +342,7 @@ If you have a lot of pets, you may want to give users the option of filter by at
 	petfinderAPI4everybody.init({
 		key: '123456789',
 		shelterID: 'AA11',
-		callbackAfter: function () { petfinderSort.init(); }
+		callback: function () { petfinderSort.init(); }
 	});
 	```
 
@@ -379,7 +377,7 @@ You may wish to display a main photo for each pet and let users toggle between a
 	petfinderAPI4everybody.init({
 		key: '123456789',
 		shelterID: 'AA11',
-		callbackAfter: function () { petfinderImgToggle.init(); }
+		callback: function () { petfinderImgToggle.init(); }
 	});
 	```
 

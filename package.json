@@ -1,6 +1,6 @@
 {
 	"name": "petfinderAPI4everybody",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "A JavaScript plugin that makes it easy for anyone to use the Petfinder API",
 	"main": "./dist",
 	"author": {
