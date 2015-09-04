@@ -3,7 +3,6 @@
 		</main>
 
 		<!-- Javascript -->
-		<script src="dist/js/classList.js"></script>
 		<script src="dist/js/petfinderAPI4everybody.js"></script>
 		<script src="dist/js/petfinderSort.js"></script>
 		<script src="dist/js/petfinderImgToggle.js"></script>
@@ -16,7 +15,7 @@
 				var supports = !!document.querySelector && !!window.addEventListener && !!window.localStorage && !!Array.prototype.indexOf;
 				if ( !supports ) return;
 
-				// Load API Data Form
+				// Create form for demo page
 				var apiData = document.querySelector( '#pf-api-data' );
 				var form =
 					'<form>' +
@@ -32,7 +31,7 @@
 					'<button id="pf-fetch-api">Fetch API Data</button>';
 				apiData.innerHTML = form;
 
-				// Fetch API Data
+				// Fetch API Data when form button is clicked
 				var submit = document.querySelector( '#pf-fetch-api' );
 				submit.addEventListener( 'click', function () {
 					var key = document.querySelector( '#pf-api-key' ).value;

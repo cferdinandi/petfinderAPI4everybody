@@ -3,31 +3,17 @@ A JavaScript plugin that makes it easy for anyone to use the [Petfinder API](htt
 
 [Download petfinderAPI4everybody.js](https://github.com/cferdinandi/petfinderAPI4everybody/archive/master.zip) / [View the demo](http://cferdinandi.github.io/petfinderAPI4everybody/)
 
-**In This Documentation**
-
-1. [Getting Started](#getting-started)
-2. [Installing with Package Managers](#installing-with-package-managers)
-3. [Working with the Source Files](#working-with-the-source-files)
-4. [Options & Settings](#options-and-settings)
-5. [Browser Compatibility](#browser-compatibility)
-6. [Roadmap](#roadmap)
-7. [How to Contribute](#how-to-contribute)
-8. [License](#license)
-
 
 
 ## Getting Started
 
-Compiled and production-ready code can be found in the `dist` directory. The `src` directory contains development code. Unit tests are located in the `test` directory. It's the same build system that's used by [Kraken](http://cferdinandi.github.io/kraken/), so it includes some unnecessary tasks but can be dropped right in to the boilerplate without any configuration.
+Compiled and production-ready code can be found in the `dist` directory. The `src` directory contains development code. Unit tests are located in the `test` directory.
 
 ### 1. Include petfinderAPI4everybody.js on your site.
 
 ```html
-<script src="dist/js/classList.js"></script>
 <script src="dist/js/petfinderAPI4everybody.js"></script>
 ```
-
-petfinderAPI4everybody.js requires [classList.js](https://github.com/eligrey/classList.js), a polyfill that extends ECMAScript 5 API support to more browsers.
 
 ### 2. Add the markup to your HTML.
 
@@ -215,6 +201,7 @@ Make sure these are installed first.
 3. When it's done installing, run one of the task runners to get going:
 	* `gulp` manually compiles files.
 	* `gulp watch` automatically compiles files and applies changes using [LiveReload](http://livereload.com/).
+	* `gulp test` compiles files and runs unit tests.
 
 
 
@@ -228,6 +215,17 @@ You can pass options and callbacks into petfinderAPI4everybody.js through the `i
 
 ```javascript
 petfinderAPI4everybody.init({
+	// Selectors (must be valid CSS selectors)
+	selector: {
+		appMain: '[data-petfinder-app="main"]', // Main content container
+		appAside: '[data-petfinder-app="aside"]', // Aside content container
+		templateAll: '[data-petfinder-template="all"]', // All pets content template
+		templateOne: '[data-petfinder-template="one"]', // One pet content template
+		templateAsideAll: '[data-petfinder-template="aside-all"]', // All pets aside template
+		templateAsideOne: '[data-petfinder-template="aside-one"]', // One pet aside template
+		async: '[data-petfinder-async]' // Asynchronous links
+	},
+
 	// API Defaults
 	key: null, // Your API developer key
 	shelter: null, // The ID of the shelther you want to get data for
@@ -407,14 +405,6 @@ petfinderAPI4everybody.destroy();
 petfinderAPI4everybody.js works in all modern browsers, and IE 9 and above.
 
 petfinderAPI4everybody.js is built with modern JavaScript APIs. If the JavaScript file fails to load, or if your site is viewed on older and less capable browsers, no API content will be displayed. You should always include fallback content in the `[data-petfinder-app="main"]` element.
-
-
-
-## Roadmap
-
-* Add support for pagination.
-* Update `petfinderSort.js` for better performance.
-* Add script to toggle images in a profile.
 
 
 

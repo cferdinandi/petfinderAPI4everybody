@@ -15,7 +15,7 @@
 	//
 
 	var petfinderImgToggle = {}; // Object for public APIs
-	var supports = !!document.querySelector && !!root.addEventListener; // Feature test
+	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_'); // Feature test
 	var settings, eventTimeout, containers;
 
 	// Default settings
@@ -109,7 +109,6 @@
 
 		// Variables
 		var firstChar = selector.charAt(0);
-		var supports = 'classList' in document.documentElement;
 		var attribute, value;
 
 		// If selector is a data attribute, split attribute from value
@@ -128,14 +127,8 @@
 
 			// If selector is a class
 			if ( firstChar === '.' ) {
-				if ( supports ) {
-					if ( elem.classList.contains( selector.substr(1) ) ) {
-						return elem;
-					}
-				} else {
-					if ( new RegExp('(^|\\s)' + selector.substr(1) + '(\\s|$)').test( elem.className ) ) {
-						return elem;
-					}
+				if ( elem.classList.contains( selector.substr(1) ) ) {
+					return elem;
 				}
 			}
 
