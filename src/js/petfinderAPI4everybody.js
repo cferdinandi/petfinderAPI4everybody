@@ -15,7 +15,7 @@
 	//
 
 	var petfinderAPI = {}; // Object for public APIs
-	var supports = !!document.querySelector && !!root.addEventListener && !!root.localStorage && !!Array.prototype.indexOf; // Feature test
+	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_') && 'localStorage' in root; // Feature test
 	var templates = {}; // Object for templates
 	var app = {}; // Object for app nodes
 	var lists = {}; // Object for pet lists
@@ -24,6 +24,17 @@
 
 	// Default settings
 	var defaults = {
+
+		// Selectors
+		selector: {
+			appMain: '[data-petfinder-app="main"]',
+			appAside: '[data-petfinder-app="aside"]',
+			templateAll: '[data-petfinder-template="all"]',
+			templateOne: '[data-petfinder-template="one"]',
+			templateAsideAll: '[data-petfinder-template="aside-all"]',
+			templateAsideOne: '[data-petfinder-template="aside-one"]',
+			async: '[data-petfinder-async]'
+		},
 
 		// API Defaults
 		key: null,
@@ -106,6 +117,7 @@
 
 		// Callbacks
 		callback: function () {}
+
 	};
 
 
@@ -178,6 +190,71 @@
 		}
 
 		return extended;
+
+	};
+
+	/**
+	 * Get the closest matching element up the DOM tree
+	 * @private
+	 * @param {Element} elem Starting element
+	 * @param {String} selector Selector to match against (class, ID, or data attribute)
+	 * @return {Element} Returns null if no match found
+	 */
+	var getClosest = function ( elem, selector ) {
+
+		// Variables
+		var firstChar = selector.charAt(0);
+		var attribute, value;
+
+		// If selector is a data attribute, split attribute from value
+		if ( firstChar === '[' ) {
+			selector = selector.substr(1, selector.length - 2);
+			attribute = selector.split( '=' );
+
+			if ( attribute.length > 1 ) {
+				value = true;
+				attribute[1] = attribute[1].replace( /"/g, '' ).replace( /'/g, '' );
+			}
+		}
+
+		// Get closest match
+		for ( ; elem && elem !== document; elem = elem.parentNode ) {
+
+			// If selector is a class
+			if ( firstChar === '.' ) {
+				if ( elem.classList.contains( selector.substr(1) ) ) {
+					return elem;
+				}
+			}
+
+			// If selector is an ID
+			if ( firstChar === '#' ) {
+				if ( elem.id === selector.substr(1) ) {
+					return elem;
+				}
+			}
+
+			// If selector is a data attribute
+			if ( firstChar === '[' ) {
+				if ( elem.hasAttribute( attribute[0] ) ) {
+					if ( value ) {
+						if ( elem.getAttribute( attribute[0] ) === attribute[1] ) {
+							return elem;
+						}
+					} else {
+						return elem;
+					}
+				}
+			}
+
+			// If selector is a tag
+			if ( elem.tagName.toLowerCase() === selector ) {
+				return elem;
+			}
+
+		}
+
+		return null;
 
 	};
 
@@ -708,10 +785,10 @@
 	var getTemplates = function () {
 
 		// Get templates
-		var allPets = document.querySelector( '[data-petfinder-template="all"]' );
-		var onePet = document.querySelector( '[data-petfinder-template="one"]' );
-		var asideAllPets = document.querySelector( '[data-petfinder-template="aside-all"]' );
-		var asideOnePet = document.querySelector( '[data-petfinder-template="aside-one"]' );
+		var allPets = document.querySelector( settings.selector.templateAll );
+		var onePet = document.querySelector( settings.selector.templateOne );
+		var asideAllPets = document.querySelector( settings.selector.templateAsideAll );
+		var asideOnePet = document.querySelector( settings.selector.templateAsideOne );
 
 		// If templates exist, cache template content
 		if ( allPets ) { templates.allPets = allPets.innerHTML; }
@@ -990,7 +1067,7 @@
 		var reg = new RegExp( baseUrl );
 
 		// If async link, prevent default behavior and load pet data asynchronously
-		if ( toggle.hasAttribute( 'data-petfinder-async' ) ) {
+		if ( getClosest( toggle, settings.selector.async ) ) {
 			event.preventDefault();
 			var pet = /[\\?&]petID=([^&#]*)/i.exec(toggle);
 			run( pet, true );

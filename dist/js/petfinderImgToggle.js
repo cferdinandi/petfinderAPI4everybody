@@ -1,10 +1,8 @@
-/**
- * petfinderAPI4everybody v2.0.0
- * A JavaScript plugin that makes it easy for anyone to use the Petfinder API, by Chris Ferdinandi.
+/*!
+ * petfinderAPI4everybody v2.1.0: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
+ * (c) 2015 Chris Ferdinandi
+ * MIT License
  * http://github.com/cferdinandi/petfinderAPI4everybody
- * 
- * Free to use under the MIT License.
- * http://gomakethings.com/mit/
  */
 
 (function (root, factory) {
@@ -24,7 +22,7 @@
 	//
 
 	var petfinderImgToggle = {}; // Object for public APIs
-	var supports = !!document.querySelector && !!root.addEventListener; // Feature test
+	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_'); // Feature test
 	var settings, eventTimeout, containers;
 
 	// Default settings
@@ -118,7 +116,6 @@
 
 		// Variables
 		var firstChar = selector.charAt(0);
-		var supports = 'classList' in document.documentElement;
 		var attribute, value;
 
 		// If selector is a data attribute, split attribute from value
@@ -137,14 +134,8 @@
 
 			// If selector is a class
 			if ( firstChar === '.' ) {
-				if ( supports ) {
-					if ( elem.classList.contains( selector.substr(1) ) ) {
-						return elem;
-					}
-				} else {
-					if ( new RegExp('(^|\\s)' + selector.substr(1) + '(\\s|$)').test( elem.className ) ) {
-						return elem;
-					}
+				if ( elem.classList.contains( selector.substr(1) ) ) {
+					return elem;
 				}
 			}
 
