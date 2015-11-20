@@ -184,6 +184,80 @@ You can install petfinderAPI4everybody.js with your favorite package manager.
 
 
 
+## Example
+
+```html
+<div data-petfinder-app="aside"></div>
+<div data-petfinder-app="main"><a href="#">Visit us on Petfinder to view our list of available animals.</a></div>
+
+<div data-petfinder-template="all" hidden>
+	<div class="{{classes}}">
+		<div data-petfinder-img-container>
+			<img src="{{photo.1.medium}}">
+		</div>
+		<h2>{{name}}</h2>
+		<p><a data-petfinder-async href="{{url.pet}}">View Full Profile</a></p>
+		<hr>
+	</div>
+</div>
+
+<div data-petfinder-template="one" hidden>
+	<p><a data-petfinder-async href="{{url.all}}">&larr; Back to Full List</a></p>
+	<div data-petfinder-img-container>
+		<div data-petfinder-img></div>
+		<p>
+			<a data-petfinder-img-toggle="{{photo.1.large}}" href="#"><img src="{{photo.1.thumbnail.large}}"></a>&nbsp;
+			<a data-petfinder-img-toggle="{{photo.2.large}}" href="#"><img src="{{photo.2.thumbnail.large}}"></a>&nbsp;
+			<a data-petfinder-img-toggle="{{photo.3.large}}" href="#"><img src="{{photo.3.thumbnail.large}}"></a>
+		</p>
+	</div>
+	<h2>{{name}}</h2>
+	<p>
+		Age: {{age}}<br>
+		Gender: {{gender}}<br>
+		Size: {{size}}
+	</p>
+	<div>{{description}}</div>
+</div>
+
+<div data-petfinder-template="aside-all" hidden>
+	<strong>Age:</strong>
+	{{checkbox.ages.toggle}}
+
+	<strong>Size:</strong>
+	{{checkbox.sizes}}
+
+	<strong>Gender:</strong>
+	{{checkbox.genders}}
+
+	<strong>Breeds:</strong>
+	{{checkbox.breeds.toggle}}
+</div>
+
+<script>
+	;(function (window, document, undefined) {
+
+		'use strict';
+
+		// Feature test
+		var supports = !!document.querySelector && !!window.addEventListener && !!window.localStorage && !!Array.prototype.indexOf;
+		if ( !supports ) return;
+
+		petfinderAPI.init({
+			key: '[YOUR PETFINDER API KEY HERE]', // Learn more: https://www.petfinder.com/developers/api-key
+			shelter: '[YOUR SHELTER ID]',
+			callback: function () {
+				petfinderSort.init(); // If you want to use the filtering plugin
+				petfinderImgToggle.init(); // If you want to use the image toggle script
+			}
+		});
+
+	})(window, document);
+</script>
+```
+
+
+
 ## Working with the Source Files
 
 If you would prefer, you can work with the development code in the `src` directory using the included [Gulp build system](http://gulpjs.com/). This compiles, lints, and minifies code, and runs unit tests. It's the same build system that's used by [Kraken](http://cferdinandi.github.io/kraken/), so it includes some unnecessary tasks and Sass variables but can be dropped right in to the boilerplate without any configuration.
