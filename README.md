@@ -1,4 +1,7 @@
-# petfinderAPI4everybody.js [![Build Status](https://travis-ci.org/cferdinandi/petfinderAPI4everybody.svg)](https://travis-ci.org/cferdinandi/petfinderAPI4everybody)
+# [DEPRECATED] petfinderAPI4everybody.js [![Build Status](https://travis-ci.org/cferdinandi/petfinderAPI4everybody.svg)](https://travis-ci.org/cferdinandi/petfinderAPI4everybody)
+
+***Deprecation Notice:*** *This plugin is no longer maintained, and any outstanding or future bugs will not be fixed. For an actively maintained project, please check out the [Harbor WordPress Theme](https://github.com/cferdinandi/harbor-wp-theme).*
+
 A JavaScript plugin that makes it easy for anyone to use the [Petfinder API](https://www.petfinder.com/developers/api-docs). Currently in Beta.
 
 [Download petfinderAPI4everybody.js](https://github.com/cferdinandi/petfinderAPI4everybody/archive/master.zip) / [View the demo](http://cferdinandi.github.io/petfinderAPI4everybody/)
