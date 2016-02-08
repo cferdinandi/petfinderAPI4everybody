@@ -5,18 +5,43 @@
 		<!-- Javascript -->
 		<script src="dist/js/petfinderAPI4everybody.js"></script>
 		<script src="dist/js/petfinderSort.js"></script>
-		<script src="dist/js/petfinderImgToggle.js"></script>
 		<script>
 			;(function (window, document, undefined) {
 
 				'use strict';
 
 				// Feature test
-				var supports = !!document.querySelector && !!window.addEventListener && !!window.localStorage && !!Array.prototype.indexOf;
+				var supports = 'querySelector' in document && 'addEventListener' in window && 'classList' in document.createElement('_') && 'localStorage' in window && !!Array.prototype.indexOf;
 				if ( !supports ) return;
 
-				// Create form for demo page
+				// Get the API data input
 				var apiData = document.querySelector( '#pf-api-data' );
+				if ( !apiData ) return;
+
+				// Check if developer key is in session storage
+				var developerKey = sessionStorage.getItem( 'petfinderAPI4everybodyDemoKey' );
+				var shelterID = sessionStorage.getItem( 'petfinderAPI4everybodyDemoID' );
+
+				if ( developerKey && shelterID ) {
+
+					// Hide the API data input
+					apiData.style.display = 'none';
+					apiData.style.visibility = 'hidden';
+
+					// Get the API data
+					petfinderAPI.init({
+						key: developerKey,
+						shelter: shelterID,
+						callback: function () {
+							petfinderSort.init();
+						}
+					});
+
+					return;
+
+				}
+
+				// Create form for demo page
 				var form =
 					'<form>' +
 						'<div>' +
@@ -34,16 +59,28 @@
 				// Fetch API Data when form button is clicked
 				var submit = document.querySelector( '#pf-fetch-api' );
 				submit.addEventListener( 'click', function () {
+
+					// Variables
 					var key = document.querySelector( '#pf-api-key' ).value;
 					var shelter = document.querySelector( '#pf-shelter-id' ).value;
+
+					// Get API data
 					petfinderAPI.init({
 						key: key,
 						shelter: shelter,
 						callback: function () {
 							petfinderSort.init();
-							petfinderImgToggle.init();
 						}
 					});
+
+					// Store variables for reuse on subsequent page loads
+					sessionStorage.setItem( 'petfinderAPI4everybodyDemoKey', key );
+					sessionStorage.setItem( 'petfinderAPI4everybodyDemoID', shelter );
+
+					// Hide the form
+					apiData.style.display = 'none';
+					apiData.style.visibility = 'hidden';
+
 				}, false);
 
 			})(window, document);
