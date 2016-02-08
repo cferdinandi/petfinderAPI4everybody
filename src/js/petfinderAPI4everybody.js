@@ -15,7 +15,7 @@
 	//
 
 	var petfinderAPI = {}; // Object for public APIs
-	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_') && 'localStorage' in root; // Feature test
+	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_') && 'localStorage' in root && !!Array.prototype.indexOf; // Feature test
 	var templates = {}; // Object for templates
 	var app = {}; // Object for app nodes
 	var lists = {}; // Object for pet lists
@@ -323,7 +323,7 @@
 
 		// If Petfinder API produces an error, return and fallback to localStorage
 		if ( data.petfinder.header.status.code.$t !== '100' ) {
-			console.log('Unable to get data from Petfinder. Using expired localStorage data instead.');
+			console.log( 'Unable to get data from Petfinder. Using expired localStorage data instead.' );
 			setup();
 			return;
 		}
@@ -406,8 +406,7 @@
 		// Sanitize description and add links
 		if ( type === 'description' ) {
 			attribute = sanitizeDescription( pet.description.$t );
-			attribute = addLinks( attribute );
-			attribute = addMailtos( attribute );
+			attribute = linkify( attribute );
 			attribute = '<div style="white-space: pre-wrap;">' + attribute + '</div>';
 		}
 
@@ -538,23 +537,31 @@
 	};
 
 	/**
-	 * Replace plain text links with URLs
+	 * Convert strings to links
 	 * @private
-	 * @param {String} text Text to add URLs to
+	 * @param  {String} inputText The text to add links to
+	 * @return {String}          Linkified text
+	 * @author Steven Miyakawa
+	 * @link   https://gist.github.com/SamSamskies/61604d534fbe89ee9cce
 	 */
-	var addLinks = function ( text ) {
-		if ( !text || text === '' ) return; // If no text is supplied, end method
-		return text.replace(/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/g, '<a href="$&" rel="nofollow">$&</a>');
-	};
+	var linkify = function ( inputText ) {
 
-	/**
-	 * Replace plain text email addresses with mailto links
-	 * @private
-	 * @param {String} text Text to add links to
-	 */
-	var addMailtos = function ( text ) {
-		if ( !text || text === '' ) return; // If no text is supplied, end method
-		return text.replace(/([a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4})/g, '<a href="mailto:$&">$&</a>');
+		var replacedText, replacePattern1, replacePattern2, replacePattern3;
+
+		//URLs starting with http://, https://, or ftp://
+		replacePattern1 = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gim;
+		replacedText = inputText.replace(replacePattern1, '<a href="$1" target="_blank">$1</a>');
+
+		//URLs starting with "www." (without // before it, or it'd re-link the ones done above).
+		replacePattern2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+		replacedText = replacedText.replace(replacePattern2, '$1<a href="http://$2" target="_blank">$2</a>');
+
+		//Change email addresses to mailto:: links.
+		replacePattern3 = /(([a-zA-Z0-9\-\_\.])+@[a-zA-Z\_]+?(\.[a-zA-Z]{2,6})+)/gim;
+		replacedText = replacedText.replace(replacePattern3, '<a href="mailto:$1">$1</a>');
+
+		return replacedText;
+
 	};
 
 	/**
@@ -750,9 +757,6 @@
 		var markup = '';
 		var toggleAll = '';
 		var sort = type === 'breeds' ? 'breeds' : 'attributes';
-		// var subtype = null;
-		// if ( type === 'breeds' ) { subtype = 'breed'; }
-		// if ( type === 'options' ) { subtype = 'option'; }
 		var listItems = createList( type, start );
 
 		// For each attribute, create a checkbox
@@ -880,17 +884,6 @@
 	};
 
 	/**
-	 * Update the URL
-	 * @private
-	 * @param {Element} anchor The element to scroll to
-	 * @param {Boolean} url Whether or not to update the URL history
-	 */
-	var updateURL = function ( url ) {
-		if ( !history.pushState ) return; // If pushState isn't support, end method
-		history.pushState( null, null, url );
-	};
-
-	/**
 	 * Get pet data by ID
 	 * @private
 	 * @param  {String} petID The pet's ID
@@ -1003,9 +996,6 @@
 		if ( pet ) {
 			showOnePet( pet[1] );
 			showAside( templates.asideOnePet );
-			if ( push ) {
-				updateURL( baseUrl + '?petID=' + pet[1] );
-			}
 			settings.callback(); // Run callback after content is rendered
 			return;
 		}
@@ -1013,12 +1003,9 @@
 		// Generate content for all pets and update URL
 		showAllPets();
 		showAside( templates.asideAllPets );
-		if ( push ) {
-			updateURL( baseUrl );
-		}
 
 		// Run callback after content is rendered
-		settings.callbackAfter();
+		settings.callback();
 
 	};
 
@@ -1048,7 +1035,7 @@
 		var pet = /[\\?&]petID=([^&#]*)/i.exec(root.location.href);
 
 		// Render content in the DOM
-		run( pet, true );
+		run( pet );
 
 	};
 
@@ -1070,7 +1057,7 @@
 		if ( getClosest( toggle, settings.selector.async ) ) {
 			event.preventDefault();
 			var pet = /[\\?&]petID=([^&#]*)/i.exec(toggle);
-			run( pet, true );
+			run( pet );
 		}
 
 	};
@@ -1112,7 +1099,7 @@
 		if ( original.title ) { document.title = original.title; }
 
 		// Remove event listeners
-		document.removeEventListener('click', eventHandler, false);
+		// document.removeEventListener('click', eventHandler, false);
 
 		// Reset variables
 		templates = {};
@@ -1165,10 +1152,6 @@
 		// Show loading icon and fetch Petfinder API data
 		showLoading();
 		getAPIData();
-
-		// Listen for click and pop events
-		document.addEventListener('click', eventHandler, false);
-		root.onpopstate = popEventHandler;
 
 	};
 

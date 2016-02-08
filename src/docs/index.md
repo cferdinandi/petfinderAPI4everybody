@@ -2,8 +2,14 @@
 	<p>Your browser does not support the JavaScript APIs required to use this script. Sorry.</p>
 </div>
 
-<div data-petfinder-app="aside"></div>
-<div data-petfinder-app="main">Enter your developer key and a shelter ID in the box above to get started.</div>
+<div class="row">
+	<div class="grid-third">
+		<div data-petfinder-app="aside"></div>
+	</div>
+	<div class="grid-two-thirds">
+		<div data-petfinder-app="main">Enter your developer key and a shelter ID in the box above to get started.</div>
+	</div>
+</div>
 
 <div data-petfinder-template="all" hidden>
 	<div class="{{classes}}">
@@ -11,19 +17,19 @@
 			<img src="{{photo.1.medium}}">
 		</div>
 		<h2>{{name}}</h2>
-		<p><a data-petfinder-async href="{{url.pet}}">View Full Profile</a></p>
+		<p><a href="{{url.pet}}">View Full Profile</a></p>
 		<hr>
 	</div>
 </div>
 
 <div data-petfinder-template="one" hidden>
-	<p><a data-petfinder-async href="{{url.all}}">&larr; Back to Full List</a></p>
+	<p><a href="{{url.all}}">&larr; Back to Full List</a></p>
 	<div data-petfinder-img-container>
 		<div data-petfinder-img></div>
 		<p>
-			<a data-petfinder-img-toggle="{{photo.1.large}}" href="#"><img src="{{photo.1.thumbnail.large}}"></a>&nbsp;
-			<a data-petfinder-img-toggle="{{photo.2.large}}" href="#"><img src="{{photo.2.thumbnail.large}}"></a>&nbsp;
-			<a data-petfinder-img-toggle="{{photo.3.large}}" href="#"><img src="{{photo.3.thumbnail.large}}"></a>
+			<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.1.thumbnail.large}}"></a>&nbsp;
+			<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.2.thumbnail.large}}"></a>&nbsp;
+			<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.3.thumbnail.large}}"></a>
 		</p>
 	</div>
 	<h2>{{name}}</h2>
@@ -32,6 +38,7 @@
 		Gender: {{gender}}<br>
 		Size: {{size}}
 	</p>
+	<p>{{options.multi}}</p>
 	<div>{{description}}</div>
 </div>
 

@@ -1,6 +1,6 @@
 /*!
- * petfinderAPI4everybody v2.1.0: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
- * (c) 2015 Chris Ferdinandi
+ * petfinderAPI4everybody v3.0.0: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
+ * (c) 2016 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/petfinderAPI4everybody
  */
@@ -24,8 +24,7 @@
 	var petfinderSort = {}; // Object for public APIs
 	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_'); // Feature test
 	var sessionID = 'petfinderSortStates'; // sessionStorage ID
-	var states = {}; // Object for checkbox states
-	var settings, eventTimeout, pets, sortBreeds, sortAttributes, sortToggles, hideAll;
+	var settings, eventTimeout, states, pets, sortBreeds, sortAttributes, sortToggles, hideAll;
 
 	// Default settings
 	var defaults = {
@@ -211,10 +210,9 @@
 
 		// Get checkbox target and sessionStorage data
 		var name = checkbox.getAttribute( 'data-petfinder-sort-target' );
-		var status = JSON.parse( sessionStorage.getItem( sessionID ) );
 
 		// If checkbox is in sessionStorage, update it's state
-		if ( status && status[name] && status[name] === 'unchecked' ) {
+		if ( states && states[name] && states[name] === 'unchecked' ) {
 			checkbox.checked = false;
 		}
 
@@ -390,7 +388,7 @@
 		document.removeEventListener('click', eventHandler, false);
 
 		// Reset variables
-		states = {};
+		states = null;
 		settings = null;
 		eventTimeout = null;
 		pets = null;
@@ -416,11 +414,15 @@
 
 		// Variables
 		settings = extend( true, defaults, options || {} ); // Merge user options with defaults
-		pets = document.querySelectorAll('.pf-pet');
-		sortBreeds = document.querySelectorAll('[data-petfinder-sort="breeds"]');
-		sortAttributes = document.querySelectorAll('[data-petfinder-sort="attributes"]');
-		sortToggles = document.querySelectorAll('[data-petfinder-sort="toggle"]');
+		pets = document.querySelectorAll( '.pf-pet' );
+		sortBreeds = document.querySelectorAll( '[data-petfinder-sort="breeds"]' );
+		sortAttributes = document.querySelectorAll( '[data-petfinder-sort="attributes"]' );
+		sortToggles = document.querySelectorAll( '[data-petfinder-sort="toggle"]' );
 		hideAll = sortBreeds.length === 0 ? false : true;
+		if ( root.sessionStorage ) {
+			states = sessionStorage.getItem( sessionID ) ? JSON.parse( sessionStorage.getItem( sessionID ) ) : {};
+		}
+		states = root.sessionStorage ? JSON.parse( sessionStorage.getItem( sessionID ) ) || {} : {};
 
 		// Add class to HTML element to activate conditional CSS
 		document.documentElement.classList.add( settings.initClass );
