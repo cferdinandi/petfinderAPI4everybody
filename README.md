@@ -51,6 +51,8 @@ Compiled and production-ready code can be found in the `dist` directory. The `sr
 </div>
 ```
 
+***Note:*** *If you find this section confused, [check out the template](#template) to see an example of how you might set things up. Still lost? [I can help.](#help-with-this-plugin)*
+
 This script uses two types of elements:
 
 1. `[data-petfinder-app]` elements are containers that markup with data from the Petfinder API will be generated into.
@@ -431,6 +433,12 @@ Destroy the current `petfinderAPI4everybody.init()`. This is called automaticall
 ```javascript
 petfinderAPI4everybody.destroy();
 ```
+
+
+
+## Help with this plugin
+
+Interested in this plugin but require customization to satisfy your particular use case? Need help getting it set up with your site? This plugin can be customized to suit your specific needs. [Let’s schedule a quick call](http://gomakethings.com/schedule-a-call/) to talk about about your organization, your goals, and how we might work together.
 
 
 
