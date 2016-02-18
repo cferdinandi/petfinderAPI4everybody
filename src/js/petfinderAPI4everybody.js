@@ -16,7 +16,6 @@
 
 	var petfinderAPI = {}; // Object for public APIs
 	var supports = 'querySelector' in document && 'addEventListener' in root && 'classList' in document.createElement('_') && 'localStorage' in root && !!Array.prototype.indexOf; // Feature test
-	var templates = {}; // Object for templates
 	var app = {}; // Object for app nodes
 	var lists = {}; // Object for pet lists
 	var original = {}; // Object for original content and page title
@@ -25,17 +24,6 @@
 	// Default settings
 	var defaults = {
 
-		// Selectors
-		selector: {
-			appMain: '[data-petfinder-app="main"]',
-			appAside: '[data-petfinder-app="aside"]',
-			templateAll: '[data-petfinder-template="all"]',
-			templateOne: '[data-petfinder-template="one"]',
-			templateAsideAll: '[data-petfinder-template="aside-all"]',
-			templateAsideOne: '[data-petfinder-template="aside-one"]',
-			async: '[data-petfinder-async]'
-		},
-
 		// API Defaults
 		key: null,
 		shelter: null,
@@ -43,7 +31,19 @@
 		status: 'A',
 		offset: null,
 		expiration: 60,
-		reverse: false,
+		newestFirst: true,
+
+		// Selectors
+		selectorAppMain: '[data-petfinder="main"]',
+		selectorAppAside: '[data-petfinder="aside"]',
+
+		// Templates
+		templates: {
+			allPets: null,
+			onePet: null,
+			asideAllPets: null,
+			asideOnePet: null,
+		},
 
 		// Class Hooks
 		initClass: 'js-petfinder-api',
@@ -255,112 +255,6 @@
 		}
 
 		return null;
-
-	};
-
-	/**
-	 * Create Petfinder API request URL with callback
-	 * @private
-	 * @param  {string} callback Name of the callback function to run on load
-	 * @return {string}          The API request URL
-	 */
-	var createRequestURL = function ( callback ) {
-
-		// Setup basic request in JSON format
-		var url = 'http://api.petfinder.com/shelter.getPets?format=json';
-		var options = '';
-
-		// Add options
-		options += '&key=' + settings.key; // API Key
-		options += '&id=' + settings.shelter; // Shelter ID
-		options += '&count=' + parseInt(settings.count, 10); // Number of pets to retrieve
-		options += '&status=' + settings.status; // Status (adoptable, pending, etc.)
-		options += '&output=full'; // Output
-
-		// If offset defined, add it to options
-		if ( settings.offset ) {
-			options += '&offset=' + parseInt(settings.offset, 10);
-		}
-
-		// If a callback is defined, add it to options
-		if ( callback ) {
-			options += '&callback=' + callback;
-		}
-
-		return url + options;
-
-	};
-
-	/**
-	 * Get JSONP data for cross-domain AJAX requests
-	 * @private
-	 * @link http://cameronspear.com/blog/exactly-what-is-jsonp/
-	 * @param  {string} url The URL of the JSON request
-	 */
-	var getJSONP = function ( url ) {
-
-		// Create script with url
-		var ref = window.document.getElementsByTagName( 'script' )[ 0 ];
-		var script = window.document.createElement( 'script' );
-		script.src = url;
-
-		// Insert script tag into the DOM (append to <head>)
-		ref.parentNode.insertBefore( script, ref );
-
-		// After the script is loaded (and executed), remove it
-		script.onload = function () {
-			this.remove();
-		};
-
-	};
-
-	/**
-	 * Save remote API data to localStorage and set variable for use
-	 * @public
-	 * @param {Object} data API data object from Petfinder
-	 */
-	petfinderAPI.setAPIData = function ( data ) {
-
-		// If Petfinder API produces an error, return and fallback to localStorage
-		if ( data.petfinder.header.status.code.$t !== '100' ) {
-			console.log( 'Unable to get data from Petfinder. Using expired localStorage data instead.' );
-			setup();
-			return;
-		}
-
-		// Save API Data to localStorage with expiration date
-		var expirationMS = parseInt( settings.expiration, 10 ) * 60 * 1000;
-		localAPI = {
-			pets: data.petfinder.pets.pet,
-			timestamp: new Date().getTime() + expirationMS
-		};
-		localStorage.setItem( localAPIid, JSON.stringify(localAPI) );
-
-		// Run initial setup
-		setup();
-
-	};
-
-	/**
-	 * Get API data from localStorage
-	 * @private
-	 */
-	var getAPIData = function () {
-
-		// Get API data from localStorage
-		localAPI = JSON.parse( localStorage.getItem( localAPIid ) );
-
-		// If local data exists and hasn't expired, use it
-		if ( localAPI ) {
-			if ( new Date().getTime() < localAPI.timestamp ) {
-				setup();
-				return;
-			}
-		}
-
-		// If local data doesn't exist or has expired, get fresh data from Petfinder
-		var url = createRequestURL( 'petfinderAPI.setAPIData' );
-		getJSONP( url );
 
 	};
 
@@ -783,26 +677,6 @@
 	};
 
 	/**
-	 * Get templates for pet data from DOM
-	 * @private
-	 */
-	var getTemplates = function () {
-
-		// Get templates
-		var allPets = document.querySelector( settings.selector.templateAll );
-		var onePet = document.querySelector( settings.selector.templateOne );
-		var asideAllPets = document.querySelector( settings.selector.templateAsideAll );
-		var asideOnePet = document.querySelector( settings.selector.templateAsideOne );
-
-		// If templates exist, cache template content
-		if ( allPets ) { templates.allPets = allPets.innerHTML; }
-		if ( onePet ) { templates.onePet = onePet.innerHTML; }
-		if ( asideAllPets ) { templates.asideAllPets = asideAllPets.innerHTML; }
-		if ( asideOnePet ) { templates.asideOnePet = asideOnePet.innerHTML; }
-
-	};
-
-	/**
 	 * Replace template placeholders with content
 	 * @private
 	 * @param  {Object} pet      The pet to generate markup for
@@ -925,7 +799,7 @@
 		// Create markup for each pet
 		var markup = '';
 		forEach(localAPI.pets, function (pet, index) {
-			markup += createTemplateMarkup( pet, templates.allPets, index );
+			markup += createTemplateMarkup( pet, settings.templates.allPets, index );
 		});
 
 		// Add markup to the DOM
@@ -957,7 +831,7 @@
 		}
 
 		// Create markup for the pet
-		var markup = createTemplateMarkup( petData.pet, templates.onePet, petData.number );
+		var markup = createTemplateMarkup( petData.pet, settings.templates.onePet, petData.number );
 
 		// Add markup to the DOM
 		app.main.innerHTML = markup;
@@ -995,14 +869,14 @@
 		// If a "one pet" page, generate content for pet and update URL
 		if ( pet ) {
 			showOnePet( pet[1] );
-			showAside( templates.asideOnePet );
+			showAside( settings.templates.asideOnePet );
 			settings.callback(); // Run callback after content is rendered
 			return;
 		}
 
 		// Generate content for all pets and update URL
 		showAllPets();
-		showAside( templates.asideAllPets );
+		showAside( settings.templates.asideAllPets );
 
 		// Run callback after content is rendered
 		settings.callback();
@@ -1022,9 +896,9 @@
 			return;
 		}
 
-		// Reverse pet data order if enabled
-		if ( settings.reverse ) {
-			localAPI.reverse();
+		// If enabled, show newest pets first
+		if ( settings.newestFirst ) {
+			localAPI.pets.reverse();
 		}
 
 
@@ -1035,46 +909,6 @@
 		var pet = /[\\?&]petID=([^&#]*)/i.exec(root.location.href);
 
 		// Render content in the DOM
-		run( pet );
-
-	};
-
-	/**
-	 * Asynchronously load pet data
-	 * @private
-	 * @param event The click event
-	 */
-	var eventHandler = function (event) {
-
-		// If pushState isn't supported, end method and load pet data via reload
-		if ( !history.pushState ) return;
-
-		// Variables
-		var toggle = event.target;
-		var reg = new RegExp( baseUrl );
-
-		// If async link, prevent default behavior and load pet data asynchronously
-		if ( getClosest( toggle, settings.selector.async ) ) {
-			event.preventDefault();
-			var pet = /[\\?&]petID=([^&#]*)/i.exec(toggle);
-			run( pet );
-		}
-
-	};
-
-	/**
-	 * Refresh pet content on popevent
-	 * @param  {Event} event The popevent
-	 */
-	var popEventHandler = function (event) {
-
-		// If pushState isn't supported, end method
-		if ( !history.pushState ) return;
-
-		// Determine if new state is for "one pet" or "all pets"
-		var pet = /[\\?&]petID=([^&#]*)/i.exec(root.location.href);
-
-		// Render pet data in the DOM
 		run( pet );
 
 	};
@@ -1102,7 +936,6 @@
 		// document.removeEventListener('click', eventHandler, false);
 
 		// Reset variables
-		templates = {};
 		app = {};
 		lists = {};
 		original = {};
@@ -1112,6 +945,112 @@
 		localAPIid = null;
 		baseUrl = null;
 		total = null;
+
+	};
+
+	/**
+	 * Create Petfinder API request URL with callback
+	 * @private
+	 * @param  {string} callback Name of the callback function to run on load
+	 * @return {string}          The API request URL
+	 */
+	var createRequestURL = function ( callback ) {
+
+		// Setup basic request in JSON format
+		var url = 'http://api.petfinder.com/shelter.getPets?format=json';
+		var options = '';
+
+		// Add options
+		options += '&key=' + settings.key; // API Key
+		options += '&id=' + settings.shelter; // Shelter ID
+		options += '&count=' + parseInt(settings.count, 10); // Number of pets to retrieve
+		options += '&status=' + settings.status; // Status (adoptable, pending, etc.)
+		options += '&output=full'; // Output
+
+		// If offset defined, add it to options
+		if ( settings.offset ) {
+			options += '&offset=' + parseInt(settings.offset, 10);
+		}
+
+		// If a callback is defined, add it to options
+		if ( callback ) {
+			options += '&callback=' + callback;
+		}
+
+		return url + options;
+
+	};
+
+	/**
+	 * Get JSONP data for cross-domain AJAX requests
+	 * @private
+	 * @link http://cameronspear.com/blog/exactly-what-is-jsonp/
+	 * @param  {string} url The URL of the JSON request
+	 */
+	var getJSONP = function ( url ) {
+
+		// Create script with url
+		var ref = window.document.getElementsByTagName( 'script' )[ 0 ];
+		var script = window.document.createElement( 'script' );
+		script.src = url;
+
+		// Insert script tag into the DOM (append to <head>)
+		ref.parentNode.insertBefore( script, ref );
+
+		// After the script is loaded (and executed), remove it
+		script.onload = function () {
+			this.remove();
+		};
+
+	};
+
+	/**
+	 * Save remote API data to localStorage and set variable for use
+	 * @public
+	 * @param {Object} data API data object from Petfinder
+	 */
+	petfinderAPI.setAPIData = function ( data ) {
+
+		// If Petfinder API produces an error, return and fallback to localStorage
+		if ( data.petfinder.header.status.code.$t !== '100' ) {
+			console.log( 'Unable to get data from Petfinder. Using expired localStorage data instead.' );
+			setup();
+			return;
+		}
+
+		// Save API Data to localStorage with expiration date
+		var expirationMS = parseInt( settings.expiration, 10 ) * 60 * 1000;
+		localAPI = {
+			pets: data.petfinder.pets.pet,
+			timestamp: new Date().getTime() + expirationMS
+		};
+		localStorage.setItem( localAPIid, JSON.stringify(localAPI) );
+
+		// Run initial setup
+		setup();
+
+	};
+
+	/**
+	 * Get API data from localStorage
+	 * @private
+	 */
+	var getAPIData = function () {
+
+		// Get API data from localStorage
+		localAPI = JSON.parse( localStorage.getItem( localAPIid ) );
+
+		// If local data exists and hasn't expired, use it
+		if ( localAPI ) {
+			if ( new Date().getTime() < localAPI.timestamp ) {
+				setup();
+				return;
+			}
+		}
+
+		// If local data doesn't exist or has expired, get fresh data from Petfinder
+		var url = createRequestURL( 'petfinderAPI.setAPIData' );
+		getJSONP( url );
 
 	};
 
@@ -1129,7 +1068,7 @@
 		petfinderAPI.destroy();
 
 		// Merge user options with defaults
-		settings = extend( defaults, options || {} );
+		settings = extend( true, defaults, options || {} );
 
 		// If API key or shelter ID are not provided, end init and log error
 		if ( !settings.key || !settings.shelter ) {
@@ -1137,17 +1076,25 @@
 			return;
 		}
 
+		// If template for all pets not provided, end init and log error
+		if ( !settings.templates.allPets ) {
+			console.log( 'You must provide a template for all pets to use petfinderAPI4everybody.js' );
+			return;
+		}
+
 		// Add class to HTML element to activate conditional CSS
 		document.documentElement.classList.add( settings.initClass );
 
+		// Get containers
+		app.main = document.querySelector( settings.selectorAppMain );
+		app.aside = document.querySelector( settings.selectorAppAside );
+		if ( !app.main ) return;
+
 		// Variables
 		localAPIid = [ settings.key, settings.shelter, settings.count, settings.status, settings.offset ].join('');
-		app.main = document.querySelector('[data-petfinder-app="main"]');
-		app.aside = document.querySelector('[data-petfinder-app="aside"]');
 		original.content = app.main.innerHTML;
 		original.title = document.title;
 		baseUrl = [root.location.protocol, '//', root.location.host, root.location.pathname].join('');
-		getTemplates();
 
 		// Show loading icon and fetch Petfinder API data
 		showLoading();
