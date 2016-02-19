@@ -20,64 +20,62 @@ Compiled and production-ready code can be found in the `dist` directory. The `sr
 ### 2. Add the markup to your HTML.
 
 ```html
-<div data-petfinder-app="main">
+<div data-petfinder="main">
 	<!-- Required -->
 	<!-- Main pet content will be generated here -->
+	<a href="http://awos.petfinder.com/shelters/AA11.html">View our adoptable pets on Petfinder.</a>
 </div>
 
-<div data-petfinder-app="aside">
+<div data-petfinder="aside">
 	<!-- Optional -->
 	<!-- Supplemental content will be generated here -->
 </div>
-
-<div data-petfinder-template="all" style="display: none; visiblity hidden;">
-	<!-- Required -->
-	<!-- Markup for each pet in the "All Pets" view -->
-</div>
-
-<div data-petfinder-template="one" style="display: none; visiblity hidden;">
-	<!-- Optional -->
-	<!-- Markup for pet in the "One Pet" view -->
-</div>
-
-<div data-petfinder-template="aside-all" style="display: none; visiblity hidden;">
-	<!-- Optional -->
-	<!-- Markup for the "All Pets" aside section -->
-</div>
-
-<div data-petfinder-template="aside-one" style="display: none; visiblity hidden;">
-	<!-- Optional -->
-	<!-- Markup for the "One Pet" aside section -->
-</div>
 ```
+
+Place the two `[data-petfinder]` elements anywhere on a webpage. You can wrap them in other elements, add classes and IDs, and so on.
+
+- `[data-petfinder="main"]` - The primary area where all data for specific pets will be displayed.
+- `[data-petfinder="aside"]` - [optional] Used to display lists, checkboxes, and supplemental information.
+
+***Note:*** *You should include a backup link or Petfinder iframe in the `[data-petfinder="main"]` element. This will be displayed if the user's browser is not supported by petfinderAPI4everybody.js or the API fails to load.*
+
+### 3. Initialize petfinderAPI4everybody.js.
+
+In the footer of your page, after the content, initialize petfinderAPI4everybody.js.
+
+[A `key` and `sheltherID` are required](https://www.petfinder.com/developers/api-key). This is also where you pass in templates for the `main` and `aside` content.
+
+And that's it, you're done. Nice work!
 
 ***Note:*** *If you find this section confused, [check out the template](#template) to see an example of how you might set things up. Still lost? [I can help.](#help-with-this-plugin)*
 
-This script uses two types of elements:
-
-1. `[data-petfinder-app]` elements are containers that markup with data from the Petfinder API will be generated into.
-2. `[data-petfinder-template]` elements are templates that tell the script what that markup should look like and where to place Petfinder API data.
-
-Place the two `[data-petfinder-app]` elements anywhere on a webpage. You can wrap them in other elements, add classes and IDs, and so on.
-
-* `[data-petfinder-app="main"]` - The primary area where all data for specific pets will be displayed.
-* `[data-petfinder-app="aside"]` - [optional] Used to display lists, checkboxes, and supplemental information.
-
-Add your HTML for the `main` and `aside` content areas into the appropriate `[data-petfinder-template]` elements. The script includes variables you can use to dynamically add data from the Petfinder API (see the next section).
-
-* `[data-petfinder-template="all"]` - Template for all pets. HTML is looped over each pet.
-* `[data-petfinder-template="one"]` - [optional] Template for one pet.
-* `[data-petfinder-template="aside-all"]` - [optional] Template for aside content on all pets page.
-* `[data-petfinder-template="aside-one"]` - [optional] Template for aside content on one pet page.
-
-**Notes:**
-
-1. You should include a backup link or Petfinder iframe in the `[data-petfinder-app="main"]` element. This will be displayed if the user's browser is not supported by petfinderAPI4everybody.js or the API fails to load.
-2. All `[data-petfinder-template]` elements should be hidden in the DOM using the `[hidden]` attribute, a class or ID and CSS, or inline styling.
+```html
+<script>
+	petfinderAPI4everybody.init({
+		key: '123456789', // Your API key with Petfinder
+		shelterID: 'AA11', // Your Petfinder shelter ID
+		templates: {
+			// The layout for the page that displays all pets
+			allPets:
+				'<div>' +
+					'<div>' +
+						'<img src="{{photo.1.medium}}">' +
+					'</div>' +
+					'<h2>{{name}}</h2>' +
+					'<p><a href="{{url.pet}}">View Full Profile</a></p>' +
+					'<hr>' +
+				'</div>',
+			onePet: null, // The layout for individual pet profiles [optional]
+			asideAllPets: null, // The layout for secondary content on the "All Pets" page [optional]
+			asideOnePet: null, // The layout for secondary content on individual pet pages [optional]
+		}
+	});
+</script>
+```
 
 #### API Data Variables
 
-Include the following variables in your template elements to dynamically add content from the Petfinder API.
+Include the following variables in your template markup to dynamically add content from the Petfinder API.
 
 **Pet Variables:**
 
@@ -153,20 +151,6 @@ Include the following variables in your template elements to dynamically add con
 
 ***Note:*** *Lists return `<li>` elements only. You must place them inside an `<ol>` or `<ul>` element as desired. Example: `<ul>{{list.breeds}}</ul>`*
 
-### 3. Initialize petfinderAPI4everybody.js.
-
-In the footer of your page, after the content, initialize petfinderAPI4everybody.js. [A `key` and `sheltherID` are required](https://www.petfinder.com/developers/api-key). And that's it, you're done. Nice work!
-
-```html
-<script>
-	petfinderAPI4everybody.init({
-		key: '123456789',
-		shelterID: 'AA11'
-	});
-</script>
-```
-
-
 
 ## Filtering Pets
 
@@ -178,34 +162,39 @@ If you have a lot of pets, you may want to give users the option of filter by at
 <script src="dist/js/petfinderSort.js"></script>
 ```
 
-### 2. Add the markup to your HTML.
+### 2. Add the markup to your HTML and initialize petfinderSort.js as a callback after the content is generated.
 
-Add any of the attribute checklists you want to use to your template files, and add the `{{classes}}` variable on a containing `<div>` for the pet.
+Add any of the attribute checklists you want to use to your template, and add the `{{classes}}` variable on a containing `<div>` in the `allPets` template. Initialize petfinderSort.js as a callback after content is generated.
 
-```html
-<div data-petfinder-template="aside">
-	<strong>Breeds</strong>
-	{{checklist.breeds}}
-	<strong>Sizes</strong>
-	{{checklist.sizes}}
-</div>
-<div class="{{classes}}">
-	<h2>{{name}}</h2>
-	<a href="{{url.pet}}">Full Profile</a>
-</div>
-```
+<script>
+	petfinderAPI4everybody.init({
+		...
+		templates: {
+			allPets:
+				'<div class="{{classes}}">' +
+					// Pet layout
+				'</div>',
+			asideAllPets:
+				'<strong>Age:</strong>' +
+				'{{checkbox.ages.toggle}}' +
+				'<br><br>' +
 
-### 3. Initialize petfinderSort.js as a callback after content is generated.
+				'<strong>Size:</strong>' +
+				'{{checkbox.sizes}}' +
+				'<br><br>' +
 
-```js
-petfinderAPI4everybody.init({
-	key: '123456789',
-	shelterID: 'AA11',
-	callback: function () {
-		petfinderSort.init();
-	}
-});
-```
+				'<strong>Gender:</strong>' +
+				'{{checkbox.genders}}' +
+				'<br><br>' +
+
+				'<strong>Breeds:</strong>' +
+				'{{checkbox.breeds.toggle}}',
+			callback: function () {
+				petfinderSort.init();
+			}
+		}
+	});
+</script>
 
 
 
@@ -215,57 +204,11 @@ If the initial setup is a bit confusing, here's a template to get you started.
 
 ```html
 <!-- Container that "aside" content will be added to -->
-<div data-petfinder-app="aside"></div>
+<div data-petfinder="aside"></div>
 
 <!-- Container that "main" content will be added to. The text in here will be replaced when the script loads. -->
-<div data-petfinder-app="main"><a href="http://awos.petfinder.com/shelters/AA11.html">View our adoptable pets on Petfinder.</a></div>
-
-<!-- The template for "All Pets" landing page content. Each pet's data is looped through this template. -->
-<div data-petfinder-template="all" style="display: none; visiblity: hidden;">
-	<div class="{{classes}}">
-		<div data-petfinder-img-container>
-			<img src="{{photo.1.medium}}">
-		</div>
-		<h2>{{name}}</h2>
-		<p><a href="{{url.pet}}">View Full Profile</a></p>
-		<hr>
-	</div>
-</div>
-
-<!-- The template for individual pet pages -->
-<div data-petfinder-template="one"  style="display: none; visiblity: hidden;">
-	<p><a href="{{url.all}}">&larr; Back to Full List</a></p>
-	<div data-petfinder-img-container>
-		<div data-petfinder-img></div>
-		<p>
-			<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.1.thumbnail.large}}"></a>&nbsp;
-			<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.2.thumbnail.large}}"></a>&nbsp;
-			<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.3.thumbnail.large}}"></a>
-		</p>
-	</div>
-	<h2>{{name}}</h2>
-	<p>
-		Age: {{age}}<br>
-		Gender: {{gender}}<br>
-		Size: {{size}}
-	</p>
-	<p>{{options.multi}}</p>
-	<div>{{description}}</div>
-</div>
-
-<!-- The template for "aside" content on the "All Pets" page -->
-<div data-petfinder-template="aside-all"  style="display: none; visiblity: hidden;">
-	<strong>Age:</strong>
-	{{checkbox.ages.toggle}}
-
-	<strong>Size:</strong>
-	{{checkbox.sizes}}
-
-	<strong>Gender:</strong>
-	{{checkbox.genders}}
-
-	<strong>Breeds:</strong>
-	{{checkbox.breeds.toggle}}
+<div data-petfinder="main">
+	<a href="http://awos.petfinder.com/shelters/AA11.html">View our adoptable pets on Petfinder.</a>
 </div>
 
 <script src="dist/js/petfinderAPI4everybody.js"></script>
@@ -274,9 +217,58 @@ If the initial setup is a bit confusing, here's a template to get you started.
 
 		'use strict';
 
+		// Templates
+
+		var allPets =
+			'<div class="{{classes}}">' +
+				'<div>' +
+					'<img src="{{photo.1.medium}}">' +
+				'</div>' +
+				'<h2>{{name}}</h2>' +
+				'<p><a href="{{url.pet}}">View Full Profile</a></p>' +
+				'<hr>' +
+			'</div>';
+
+		var onePet =
+			'<p><a href="{{url.all}}">&larr; Back to Full List</a></p>' +
+			'<p>' +
+				'<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.1.thumbnail.large}}"></a>&nbsp;' +
+				'<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.2.thumbnail.large}}"></a>&nbsp;' +
+				'<a target="_blank" href="{{photo.1.large}}"><img src="{{photo.3.thumbnail.large}}"></a>' +
+			'</p>' +
+			'<h2>{{name}}</h2>' +
+			'<p>' +
+				'Age: {{age}}<br>' +
+				'Gender: {{gender}}<br>' +
+				'Size: {{size}}' +
+			'</p>' +
+			'<p>{{options.multi}}</p>' +
+			'<div>{{description}}</div>';
+
+		var asideAllPets =
+			'<strong>Age:</strong>' +
+			'{{checkbox.ages.toggle}}' +
+			'<br><br>' +
+
+			'<strong>Size:</strong>' +
+			'{{checkbox.sizes}}' +
+			'<br><br>' +
+
+			'<strong>Gender:</strong>' +
+			'{{checkbox.genders}}' +
+			'<br><br>' +
+
+			'<strong>Breeds:</strong>' +
+			'{{checkbox.breeds.toggle}}';
+
 		petfinderAPI.init({
 			key: '[YOUR PETFINDER API KEY HERE]', // Learn more: https://www.petfinder.com/developers/api-key
 			shelter: '[YOUR SHELTER ID]',
+			templates: {
+				allPets: allPets,
+				onePet: onePet,
+				asideAllPets: asideAllPets,
+			},
 			callback: function () {
 				petfinderSort.init(); // If you want to use the filtering plugin
 			}
@@ -329,16 +321,6 @@ You can pass options and callbacks into petfinderAPI4everybody.js through the `i
 
 ```javascript
 petfinderAPI4everybody.init({
-	// Selectors (must be valid CSS selectors)
-	selector: {
-		appMain: '[data-petfinder-app="main"]', // Main content container
-		appAside: '[data-petfinder-app="aside"]', // Aside content container
-		templateAll: '[data-petfinder-template="all"]', // All pets content template
-		templateOne: '[data-petfinder-template="one"]', // One pet content template
-		templateAsideAll: '[data-petfinder-template="aside-all"]', // All pets aside template
-		templateAsideOne: '[data-petfinder-template="aside-one"]', // One pet aside template
-		async: '[data-petfinder-async]' // Asynchronous links
-	},
 
 	// API Defaults
 	key: null, // Your API developer key
@@ -347,7 +329,19 @@ petfinderAPI4everybody.init({
 	status: 'A', // Adoption status of pets (A = adoptable)
 	offset: null, // Skip first x number of pets when retrieving data
 	expiration: 60, // How long to save API data for locally, in minutes
-	reverse: false, // If true, sort pet data reverse chronologically
+	newestFirst: true, // If true, show newest pets first on page
+
+	// Selectors (must be valid CSS selectors)
+	selectorAppMain: '[data-petfinder="main"]', // Main content area
+	selectorAppAside: '[data-petfinder="aside"]', // Secondary content area
+
+	// Templates
+	templates: {
+		allPets: null, // Template for page that displays all pets
+		onePet: null, // Tempplate for individual pet profiles
+		asideAllPets: null, // Template for secondary content on all pets page
+		asideOnePet: null, // Template for secondary content on individual pet profiles
+	},
 
 	// Class Hooks
 	initClass: 'js-petfinder-api', // Added on initialization
