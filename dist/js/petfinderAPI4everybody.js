@@ -1,5 +1,5 @@
 /*!
- * petfinderAPI4everybody v4.0.0: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
+ * petfinderAPI4everybody v4.0.1: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
  * (c) 2016 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/petfinderAPI4everybody
@@ -71,7 +71,7 @@
 		noImage: '',
 
 		// Animal Text
-		animalUnknown: '',
+		animalUnknown: 'Not Known',
 
 		// Breeds Text
 		breedDelimiter: ', ',
@@ -346,10 +346,15 @@
 			if ( pet.sex.$t === 'F' ) attribute = settings.genderF;
 		}
 
+		// Translate animals into human-readable form
+		if ( type === 'animal' ) {
+			attribute = pet.animal.$t === 'unknown' ? settings.animalUnknown : pet.animal.$t;
+		}
+
 		// Generate a string of options
 		if ( type === 'multiOptions' ) {
 			var noCats, noDogs, noKids;
-			if ( !pet.options.option ) return;
+			if ( !pet.options.option ) return attribute;
 			forEach(pet.options.option, function (opt) {
 				if ( opt.$t === 'noCats' ) { noCats = true; }
 				if ( opt.$t === 'noDogs' ) { noDogs = true; }
@@ -358,12 +363,12 @@
 
 			// Create content for pet options section
 			if ( noCats === true && noDogs === true && noKids === true ) { attribute = settings.optionsNoDogsCatsKids; }
-			if ( noCats === true && noDogs === true ) { attribute = settings.optionsNoDogsCats; }
-			if ( noDogs === true && noKids === true ) { attribute = settings.optionsNoDogsKids; }
-			if ( noCats === true && noKids === true ) { attribute = settings.optionsNoCatsKids; }
-			if ( noDogs === true ) { attribute = settings.optionsNoDogs; }
-			if ( noCats === true ) { attribute = settings.optionsNoCats; }
-			if ( noKids === true ) { attribute = settings.optionsNoKids; }
+			else if ( noCats === true && noDogs === true ) { attribute = settings.optionsNoDogsCats; }
+			else if ( noDogs === true && noKids === true ) { attribute = settings.optionsNoDogsKids; }
+			else if ( noCats === true && noKids === true ) { attribute = settings.optionsNoCatsKids; }
+			else if ( noDogs === true ) { attribute = settings.optionsNoDogs; }
+			else if ( noCats === true ) { attribute = settings.optionsNoCats; }
+			else if ( noKids === true ) { attribute = settings.optionsNoKids; }
 		}
 		if ( type === 'specialNeeds' ) { getPetOption( 'specialNeeds', settings.optionsSpecialNeeds ); }
 		if ( type === 'noDogs' ) { getPetOption( 'noDogs', settings.optionsNoDogs ); }
@@ -388,7 +393,7 @@
 	var getPetPhoto = function ( pet, size, num ) {
 
 		// If pet has no photos, end method
-		if ( pet.media.photos.photo.count === 0 ) return '';
+		if ( !pet.media.photos.photo || pet.media.photos.photo.count === 0 ) return '';
 
 		// Variables
 		var image = settings.noImage;
@@ -665,7 +670,7 @@
 			var target = condenseString( item, true );
 			markup +=
 				'<label>' +
-					'<input type="checkbox" data-petfinder-sort="' + sort + '" data-petfinder-sort-type="' + type + '" data-petfinder-sort-target=".' + target + '" checked>' +
+					'<input type="checkbox" data-petfinder-sort="' + sort + '" data-petfinder-sort-type="' + type + '" data-petfinder-sort-target=".' + target + '" checked> ' +
 					item +
 				'</label>';
 		});
@@ -674,7 +679,7 @@
 		if ( toggle ) {
 			toggleAll =
 				'<label>' +
-					'<input type="checkbox" data-petfinder-sort="toggle" data-petfinder-sort-target="[data-petfinder-sort-type=' + type + ']" checked>' +
+					'<input type="checkbox" data-petfinder-sort="toggle" data-petfinder-sort-target="[data-petfinder-sort-type=' + type + ']" checked> ' +
 					settings.toggleAll +
 				'</label>';
 		}
@@ -695,12 +700,12 @@
 			return template
 				.replace( /\{\{name\}\}/g, pet.name.$t )
 				.replace( /\{\{id\}\}/g, pet.id.$t )
-				.replace( /\{\{animal\}\}/, pet.animal.$t )
-				.replace( /\{\{age\}\}/, getPetAttribute( pet, 'age', settings.ageUnknown ) )
-				.replace( /\{\{gender\}\}/, getPetAttribute( pet, 'gender', settings.genderUnknown ))
-				.replace( /\{\{size\}\}/, getPetAttribute( pet, 'size', settings.sizeUnknown ) )
-				.replace( /\{\{breeds\}\}/, getPetAttribute( pet, 'breeds', '' ) )
-				.replace( /\{\{description\}\}/, getPetAttribute( pet, 'description', '' ) )
+				.replace( /\{\{animal\}\}/g, pet.animal.$t )
+				.replace( /\{\{age\}\}/g, getPetAttribute( pet, 'age', settings.ageUnknown ) )
+				.replace( /\{\{gender\}\}/g, getPetAttribute( pet, 'gender', settings.genderUnknown ))
+				.replace( /\{\{size\}\}/g, getPetAttribute( pet, 'size', settings.sizeUnknown ) )
+				.replace( /\{\{breeds\}\}/g, getPetAttribute( pet, 'breeds', '' ) )
+				.replace( /\{\{description\}\}/g, getPetAttribute( pet, 'description', '' ) )
 				.replace( /\{\{photo.1.large\}\}/g, getPetPhoto( pet, 'large', '1' ) )
 				.replace( /\{\{photo.2.large\}\}/g, getPetPhoto( pet, 'large', '2' ) )
 				.replace( /\{\{photo.3.large\}\}/g, getPetPhoto( pet, 'large', '3' ) )
@@ -716,28 +721,28 @@
 				.replace( /\{\{photo.1.thumbnail.large\}\}/g, getPetPhoto( pet, 'thumbLarge', '1' ) )
 				.replace( /\{\{photo.2.thumbnail.large\}\}/g, getPetPhoto( pet, 'thumbLarge', '2' ) )
 				.replace( /\{\{photo.3.thumbnail.large\}\}/g, getPetPhoto( pet, 'thumbLarge', '3' ) )
-				.replace( /\{\{options.multi\}\}/, getPetAttribute( pet, 'multiOptions', '' ) )
-				.replace( /\{\{options.specialNeeds\}\}/, getPetAttribute( pet, 'specialNeeds', '' ) )
-				.replace( /\{\{options.noDogs\}\}/, getPetAttribute( pet, 'noDogs', '' ) )
-				.replace( /\{\{options.noCats\}\}/, getPetAttribute( pet, 'noCats', '' ) )
-				.replace( /\{\{options.noKids\}\}/, getPetAttribute( pet, 'noKids', '' ) )
-				.replace( /\{\{options.noClaws\}\}/, getPetAttribute( pet, 'noClaws', '' ) )
-				.replace( /\{\{options.hasShots\}\}/, getPetAttribute( pet, 'hasShots', '' ) )
-				.replace( /\{\{options.housebroken\}\}/, getPetAttribute( pet, 'housebroken', '' ) )
-				.replace( /\{\{options.altered\}\}/, getPetAttribute( pet, 'altered', '' ) )
-				.replace( /\{\{contact.name\}\}/, getPetContact( pet, 'name' ) )
-				.replace( /\{\{contact.email\}\}/, getPetContact( pet, 'email' ) )
-				.replace( /\{\{contact.phone\}\}/, getPetContact( pet, 'phone' ) )
-				.replace( /\{\{contact.address1\}\}/, getPetContact( pet, 'address1' ) )
-				.replace( /\{\{contact.address2\}\}/, getPetContact( pet, 'address2' ) )
-				.replace( /\{\{contact.city\}\}/, getPetContact( pet, 'city' ) )
-				.replace( /\{\{contact.state\}\}/, getPetContact( pet, 'state' ) )
-				.replace( /\{\{contact.zip\}\}/, getPetContact( pet, 'zip' ) )
-				.replace( /\{\{contact.fax\}\}/, getPetContact( pet, 'fax' ) )
+				.replace( /\{\{options.multi\}\}/g, getPetAttribute( pet, 'multiOptions', '' ) )
+				.replace( /\{\{options.specialNeeds\}\}/g, getPetAttribute( pet, 'specialNeeds', '' ) )
+				.replace( /\{\{options.noDogs\}\}/g, getPetAttribute( pet, 'noDogs', '' ) )
+				.replace( /\{\{options.noCats\}\}/g, getPetAttribute( pet, 'noCats', '' ) )
+				.replace( /\{\{options.noKids\}\}/g, getPetAttribute( pet, 'noKids', '' ) )
+				.replace( /\{\{options.noClaws\}\}/g, getPetAttribute( pet, 'noClaws', '' ) )
+				.replace( /\{\{options.hasShots\}\}/g, getPetAttribute( pet, 'hasShots', '' ) )
+				.replace( /\{\{options.housebroken\}\}/g, getPetAttribute( pet, 'housebroken', '' ) )
+				.replace( /\{\{options.altered\}\}/g, getPetAttribute( pet, 'altered', '' ) )
+				.replace( /\{\{contact.name\}\}/g, getPetContact( pet, 'name' ) )
+				.replace( /\{\{contact.email\}\}/g, getPetContact( pet, 'email' ) )
+				.replace( /\{\{contact.phone\}\}/g, getPetContact( pet, 'phone' ) )
+				.replace( /\{\{contact.address1\}\}/g, getPetContact( pet, 'address1' ) )
+				.replace( /\{\{contact.address2\}\}/g, getPetContact( pet, 'address2' ) )
+				.replace( /\{\{contact.city\}\}/g, getPetContact( pet, 'city' ) )
+				.replace( /\{\{contact.state\}\}/g, getPetContact( pet, 'state' ) )
+				.replace( /\{\{contact.zip\}\}/g, getPetContact( pet, 'zip' ) )
+				.replace( /\{\{contact.fax\}\}/g, getPetContact( pet, 'fax' ) )
 				.replace( /\{\{url.all\}\}/g, baseUrl )
 				.replace( /\{\{url.pet\}\}/g, baseUrl + '?petID=' + pet.id.$t )
 				.replace( /\{\{url.petfinder\}\}/g, 'https://www.petfinder.com/petdetail/' + pet.id.$t )
-				.replace( /\{\{classes\}\}/, getPetClasses( pet ) )
+				.replace( /\{\{classes\}\}/g, getPetClasses( pet ) )
 				.replace( /\{\{number\}\}/g, index )
 				.replace( /\{\{total\}\}/g, total );
 		}
@@ -869,9 +874,6 @@
 	 * @param  {Boolean} push If true, update URL after generating content
 	 */
 	var run = function ( pet, push ) {
-
-		// Scroll to the top of the page
-		root.scrollTo( 0, 0 );
 
 		// If a "one pet" page, generate content for pet and update URL
 		if ( pet ) {
