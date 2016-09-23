@@ -1,5 +1,5 @@
 /*!
- * petfinderAPI4everybody v4.0.1: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
+ * petfinderAPI4everybody v4.1.0: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
  * (c) 2016 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/petfinderAPI4everybody
@@ -13,7 +13,7 @@
 	} else {
 		root.petfinderAPI = factory(root);
 	}
-})(typeof global !== 'undefined' ? global : this.window || this.global, function (root) {
+})(typeof global !== 'undefined' ? global : this.window || this.global, (function (root) {
 
 	'use strict';
 
@@ -297,11 +297,11 @@
 		 */
 		var getPetOption = function ( option, value ) {
 			if ( !pet.options.option ) return;
-			forEach(pet.options.option, function (opt) {
+			forEach(pet.options.option, (function (opt) {
 				if ( opt.$t === option ) {
 					attribute = value;
 				}
-			});
+			}));
 		};
 
 		// Sanitize description and add links
@@ -318,10 +318,10 @@
 				return attribute;
 			}
 
-			forEach(pet.breeds.breed, function (breed, index) {
+			forEach(pet.breeds.breed, (function (breed, index) {
 				attribute += index === 0 ? '' : settings.breedDelimiter;
 				attribute += breed.$t;
-			});
+			}));
 		}
 
 		// Translate pet size into human-readable format
@@ -355,11 +355,11 @@
 		if ( type === 'multiOptions' ) {
 			var noCats, noDogs, noKids;
 			if ( !pet.options.option ) return attribute;
-			forEach(pet.options.option, function (opt) {
+			forEach(pet.options.option, (function (opt) {
 				if ( opt.$t === 'noCats' ) { noCats = true; }
 				if ( opt.$t === 'noDogs' ) { noDogs = true; }
 				if ( opt.$t === 'noKids' ) { noKids = true; }
-			});
+			}));
 
 			// Create content for pet options section
 			if ( noCats === true && noDogs === true && noKids === true ) { attribute = settings.optionsNoDogsCatsKids; }
@@ -405,12 +405,12 @@
 		if ( size === 'thumbLarge' ) { quality = 'fpm'; }
 
 		// Loop through available photos until finding a match
-		forEach(pet.media.photos.photo, function (photo) {
+		forEach(pet.media.photos.photo, (function (photo) {
 			if ( photo['@size'] === quality && photo['@id'] === num ) {
 				image = photo.$t;
 				return;
 			}
-		});
+		}));
 
 		return image;
 
@@ -516,9 +516,9 @@
 	 */
 	var condenseArray = function ( arr, prefix ) {
 		var text = '';
-		forEach(arr, function (value) {
+		forEach(arr, (function (value) {
 			text += ' ' + condenseString( value.$t, prefix );
-		});
+		}));
 		return text;
 	};
 
@@ -529,9 +529,9 @@
 		}
 
 		var breeds = '';
-		forEach(pet.breeds.breed, function (breed, index) {
+		forEach(pet.breeds.breed, (function (breed, index) {
 			breeds += ' ' + condenseString( breed.$t, true );
-		});
+		}));
 		return breeds;
 
 	};
@@ -578,7 +578,7 @@
 		var listTemp = [];
 
 		// Loop through pet attributes and push unique attributes to an array
-		forEach(localAPI.pets, function ( pet ) {
+		forEach(localAPI.pets, (function ( pet ) {
 
 			// Get attribute in human-readable form
 			var attribute = getPetAttribute( pet, type, start );
@@ -586,11 +586,11 @@
 			// If type is breeds, split by delimiter and add to array if not already there
 			if ( type === 'breeds' ) {
 				var breeds = attribute.split( settings.breedDelimiter );
-				forEach(breeds, function ( breed ) {
+				forEach(breeds, (function ( breed ) {
 					if ( list.indexOf( breed ) === -1 ) {
 						list.push( breed );
 					}
-				});
+				}));
 				return;
 			}
 
@@ -598,7 +598,7 @@
 			if ( list.indexOf( attribute ) === -1 ) {
 				list.push( attribute );
 			}
-		});
+		}));
 
 		// Sort list alphabetically
 		list.sort();
@@ -641,10 +641,10 @@
 		var listItems = createList( type, start );
 
 		// Create a list item for each attribute
-		forEach(listItems, function (item) {
+		forEach(listItems, (function (item) {
 			markup +=
 				'<li>' + item +'</li>';
-		});
+		}));
 
 		return markup;
 	};
@@ -666,14 +666,14 @@
 		var listItems = createList( type, start );
 
 		// For each attribute, create a checkbox
-		forEach(listItems, function (item) {
+		forEach(listItems, (function (item) {
 			var target = condenseString( item, true );
 			markup +=
 				'<label>' +
 					'<input type="checkbox" data-petfinder-sort="' + sort + '" data-petfinder-sort-type="' + type + '" data-petfinder-sort-target=".' + target + '" checked> ' +
 					item +
 				'</label>';
-		});
+		}));
 
 		// Add select/unselect all toggle if enabled
 		if ( toggle ) {
@@ -777,12 +777,12 @@
 	 */
 	var getPetByID = function ( petID ) {
 		var petData = {};
-		forEach(localAPI.pets, function (pet, index) {
+		forEach(localAPI.pets, (function (pet, index) {
 			if ( pet.id.$t === petID ) {
 				petData.pet = pet;
 				petData.number = index.toString();
 			}
-		});
+		}));
 		return petData;
 	};
 
@@ -810,9 +810,9 @@
 
 		// Create markup for each pet
 		var markup = '';
-		forEach(localAPI.pets, function (pet, index) {
+		forEach(localAPI.pets, (function (pet, index) {
 			markup += createTemplateMarkup( pet, settings.templates.allPets, index );
-		});
+		}));
 
 		// Add markup to the DOM
 		app.main.innerHTML = markup;
@@ -1118,4 +1118,4 @@
 
 	return petfinderAPI;
 
-});
+}));
