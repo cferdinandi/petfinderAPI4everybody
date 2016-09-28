@@ -1,9 +1,9 @@
 # petfinderAPI4everybody.js [![Build Status](https://travis-ci.org/cferdinandi/petfinderAPI4everybody.svg)](https://travis-ci.org/cferdinandi/petfinderAPI4everybody)
-A JavaScript plugin that makes it easier to use the [Petfinder API](https://www.petfinder.com/developers/api-docs).
+A JavaScript plugin that makes it easier for developers to use the [Petfinder API](https://www.petfinder.com/developers/api-docs).
 
 [Download petfinderAPI4everybody.js](https://github.com/cferdinandi/petfinderAPI4everybody/archive/master.zip) / [View the demo](http://cferdinandi.github.io/petfinderAPI4everybody/)
 
-***Note:*** *For sites that support server-side API calls, I strongly recommend using a server-side approach instead of this plugin. For WordPress sites, check out [Harbor](http://harbor.gomakethings.com), a free theme built specifically for animal rescue organizations.*
+***Note:*** *This is DIY library for web developers. If you're not comfortable writing code, you may prefer working with [Fetch](https://fetch.gomakethings.com/), my plug-and-play solution for the Petfinder API.*
 
 
 
