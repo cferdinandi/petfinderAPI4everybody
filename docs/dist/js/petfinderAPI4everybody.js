@@ -1,6 +1,6 @@
 /*!
- * petfinderAPI4everybody v4.2.0: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
- * (c) 2016 Chris Ferdinandi
+ * petfinderAPI4everybody v4.2.1: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
+ * (c) 2017 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/petfinderAPI4everybody
  */
@@ -201,33 +201,64 @@
 	};
 
 	/**
-	 * Get the closest matching element up the DOM tree.
+	 * Get the closest matching element up the DOM tree
 	 * @private
-	 * @param  {Element} elem     Starting element
-	 * @param  {String}  selector Selector to match against
-	 * @return {Boolean|Element}  Returns null if not match found
+	 * @param {Element} elem Starting element
+	 * @param {String} selector Selector to match against (class, ID, or data attribute)
+	 * @return {Element} Returns null if no match found
 	 */
 	var getClosest = function ( elem, selector ) {
 
-		// Element.matches() polyfill
-		if (!Element.prototype.matches) {
-			Element.prototype.matches =
-				Element.prototype.matchesSelector ||
-				Element.prototype.mozMatchesSelector ||
-				Element.prototype.msMatchesSelector ||
-				Element.prototype.oMatchesSelector ||
-				Element.prototype.webkitMatchesSelector ||
-				function(s) {
-					var matches = (this.document || this.ownerDocument).querySelectorAll(s),
-						i = matches.length;
-					while (--i >= 0 && matches.item(i) !== this) {}
-					return i > -1;
-				};
+		// Variables
+		var firstChar = selector.charAt(0);
+		var attribute, value;
+
+		// If selector is a data attribute, split attribute from value
+		if ( firstChar === '[' ) {
+			selector = selector.substr(1, selector.length - 2);
+			attribute = selector.split( '=' );
+
+			if ( attribute.length > 1 ) {
+				value = true;
+				attribute[1] = attribute[1].replace( /"/g, '' ).replace( /'/g, '' );
+			}
 		}
 
 		// Get closest match
 		for ( ; elem && elem !== document; elem = elem.parentNode ) {
-			if ( elem.matches( selector ) ) return elem;
+
+			// If selector is a class
+			if ( firstChar === '.' ) {
+				if ( elem.classList.contains( selector.substr(1) ) ) {
+					return elem;
+				}
+			}
+
+			// If selector is an ID
+			if ( firstChar === '#' ) {
+				if ( elem.id === selector.substr(1) ) {
+					return elem;
+				}
+			}
+
+			// If selector is a data attribute
+			if ( firstChar === '[' ) {
+				if ( elem.hasAttribute( attribute[0] ) ) {
+					if ( value ) {
+						if ( elem.getAttribute( attribute[0] ) === attribute[1] ) {
+							return elem;
+						}
+					} else {
+						return elem;
+					}
+				}
+			}
+
+			// If selector is a tag
+			if ( elem.tagName.toLowerCase() === selector ) {
+				return elem;
+			}
+
 		}
 
 		return null;
@@ -362,7 +393,7 @@
 	var getPetPhoto = function ( pet, size, num ) {
 
 		// If pet has no photos, end method
-		if ( !pet.media.photos.photo || pet.media.photos.photo.count === 0 ) return '';
+		if ( !pet.media || !pet.media.photos || !pet.media.photos.photo || pet.media.photos.photo.count === 0 ) return '';
 
 		// Variables
 		var image = settings.noImage;
@@ -935,7 +966,7 @@
 	var createRequestURL = function ( callback ) {
 
 		// Setup basic request in JSON format
-		var url = 'http://api.petfinder.com/shelter.getPets?format=json';
+		var url = '//api.petfinder.com/shelter.getPets?format=json';
 		var options = '';
 
 		// Add options
