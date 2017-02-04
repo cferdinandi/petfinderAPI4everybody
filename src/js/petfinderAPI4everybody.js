@@ -445,6 +445,8 @@
 	 */
 	var linkify = function ( inputText ) {
 
+		if ( !inputText ) return;
+
 		var replacedText, replacePattern1, replacePattern2, replacePattern3;
 
 		//URLs starting with http://, https://, or ftp://

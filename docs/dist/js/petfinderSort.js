@@ -1,5 +1,5 @@
 /*!
- * petfinderAPI4everybody v4.2.1: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
+ * petfinderAPI4everybody v4.2.2: A JavaScript plugin that makes it easy for anyone to use the Petfinder API
  * (c) 2017 Chris Ferdinandi
  * MIT License
  * http://github.com/cferdinandi/petfinderAPI4everybody
