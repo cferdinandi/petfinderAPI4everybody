@@ -166,6 +166,7 @@ If you have a lot of pets, you may want to give users the option of filter by at
 
 Add any of the attribute checklists you want to use to your template, and add the `{{classes}}` variable on a containing `<div>` in the `allPets` template. Initialize petfinderSort.js as a callback after content is generated.
 
+```html
 <script>
 	petfinderAPI4everybody.init({
 		...
@@ -195,6 +196,7 @@ Add any of the attribute checklists you want to use to your template, and add th
 		}
 	});
 </script>
+```
 
 
 
