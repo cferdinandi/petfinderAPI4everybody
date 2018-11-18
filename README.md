@@ -51,7 +51,7 @@ And that's it, you're done. Nice work!
 
 ```html
 <script>
-	petfinderAPI4everybody.init({
+	petfinderAPI.init({
 		key: '123456789', // Your API key with Petfinder
 		shelterID: 'AA11', // Your Petfinder shelter ID
 		templates: {
@@ -168,7 +168,7 @@ Add any of the attribute checklists you want to use to your template, and add th
 
 ```html
 <script>
-	petfinderAPI4everybody.init({
+	petfinderAPI.init({
 		...
 		templates: {
 			allPets:
@@ -321,7 +321,7 @@ petfinderAPI4everybody.js includes smart defaults and works right out of the box
 You can pass options and callbacks into petfinderAPI4everybody.js through the `init()` function:
 
 ```javascript
-petfinderAPI4everybody.init({
+petfinderAPI.init({
 
 	// API Defaults
 	key: null, // Your API developer key
@@ -423,10 +423,10 @@ petfinderAPI4everybody.init({
 You can also call petfinderAPI4everybody.js events in your own scripts.
 
 #### destroy()
-Destroy the current `petfinderAPI4everybody.init()`. This is called automatically during the init function to remove any existing initializations.
+Destroy the current `petfinderAPI.init()`. This is called automatically during the init function to remove any existing initializations.
 
 ```javascript
-petfinderAPI4everybody.destroy();
+petfinderAPI.destroy();
 ```
 
 
