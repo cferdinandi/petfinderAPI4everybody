@@ -1,3 +1,7 @@
+**IMPORTANT:** [Petfinder has deprecated their API](https://help.petfinder.com/s/article/Custom-Pet-List-Widget-Transition-Guide) as of December 2, 2025. After that date, this integration will not work. They're forcing all customers to use their [embeddable custom widgets](https://www.petfinder.com/tools-widgets/custom-pet-list/getting-started/) going forwared.
+
+---
+
 # petfinderAPI4everybody.js [![Build Status](https://travis-ci.org/cferdinandi/petfinderAPI4everybody.svg)](https://travis-ci.org/cferdinandi/petfinderAPI4everybody)
 A JavaScript plugin that makes it easier for developers to use the [Petfinder API](https://www.petfinder.com/developers/api-docs).
 
